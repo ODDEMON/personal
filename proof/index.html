@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>是 等 于 否 · 验算器 / ODDEMON PROOF ENGINE</title>
+<style>
+  :root{
+    --hue: 355;
+    --bg: #000;
+    --fg: #e8e6e1;
+    --dim: #8a8781;
+    --line: rgba(232,230,225,.14);
+    --acc: hsl(var(--hue) 90% 62%);
+    --acc2: hsl(calc(var(--hue) + 185) 85% 60%);
+    --panel: #0a0a0c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--fg);
+    font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif}
+  body{padding:26px 20px 60px;max-width:1180px;margin:0 auto}
+
+  h1{font-size:19px;font-weight:500;letter-spacing:.16em;margin:0 0 6px}
+  .sub{font-size:13px;color:var(--dim);line-height:1.75;margin:0 0 18px}
+  .sub b{color:var(--acc);font-weight:500}
+
+  .warn{border:1px solid rgba(226,75,74,.5);background:rgba(226,75,74,.07);
+    border-radius:10px;padding:11px 14px;font-size:12.5px;line-height:1.75;
+    color:#f0c9c9;margin:0 0 20px}
+  .warn b{color:#ff8f8f}
+
+  .panel{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
+  @media(max-width:900px){.panel{grid-template-columns:1fr}}
+
+  textarea,input[type=text]{width:100%;background:#0b0b0d;color:var(--fg);
+    border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+    font-size:15px;line-height:1.6;font-family:inherit;outline:none}
+  textarea{min-height:92px;resize:vertical}
+  textarea:focus,input[type=text]:focus{border-color:var(--acc)}
+
+  .bar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+  button{background:#141417;color:var(--fg);border:1px solid var(--line);
+    border-radius:8px;padding:8px 13px;font-size:13px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--acc);color:var(--acc)}
+  button:disabled{opacity:.4;cursor:default}
+  button.primary{background:var(--acc);color:#000;border-color:var(--acc);font-weight:500}
+  button.primary:hover{filter:brightness(1.15);color:#000}
+  button.on{border-color:var(--acc2);color:var(--acc2)}
+
+  .side{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)}
+  .side h3{font-size:12px;letter-spacing:.18em;color:var(--dim);font-weight:500;margin:0 0 12px}
+  .side h3:not(:first-child){margin-top:18px}
+  .row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;
+    border-bottom:1px dashed rgba(255,255,255,.07)}
+  .row:last-child{border:0}
+  .row span:last-child{font-variant-numeric:tabular-nums;color:var(--acc)}
+  input[type=range]{width:100%;margin-top:6px;accent-color:var(--acc)}
+  .seedline{display:flex;gap:8px;align-items:center}
+  .seedline input{flex:1}
+  .seedline button{padding:8px 10px}
+
+  #stage{margin-top:22px;border:1px solid var(--line);border-radius:12px;
+    background:radial-gradient(120% 90% at 50% 0%, hsl(var(--hue) 70% 12%) 0%, #000 70%);
+    padding:26px 22px 30px;min-height:280px;overflow:hidden}
+  .step{margin:0 0 15px;line-height:1.5;transition:opacity .3s ease}
+  .step .tag{display:block;font-size:11px;letter-spacing:.12em;color:var(--dim);margin-bottom:5px}
+  .step .tag em{font-style:normal;color:var(--acc2)}
+  .step .txt{display:block;font-weight:500;word-break:break-all}
+  .step.head .txt{font-size:30px}
+  .step.last{border-left:2px solid var(--acc);padding-left:14px}
+
+  #verdict{margin-top:20px;font-size:13px;color:var(--dim);line-height:1.85;
+    border-top:1px solid var(--line);padding-top:14px;display:none}
+  #verdict b{color:var(--acc);font-weight:500}
+  #verdict .self{margin-top:10px;color:var(--acc2)}
+
+  .foot{margin-top:34px;font-size:12px;color:#6f6d68;line-height:1.9;
+    border-top:1px solid var(--line);padding-top:14px}
+  .foot code{color:var(--acc2);font-size:11.5px}
+  .foot li{margin:0 0 3px}
+  .foot b{color:#8a8781;font-weight:500}
+</style>
+</head>
+<body>
+
+<h1>是 等 于 否 · 验算器</h1>
+<p class="sub">
+  这不是生成器，是一台<b>验算机</b>。输入一个命题，它对该命题反复施加否定算子，
+  直到命题不再变化为止 —— 那一刻即不动点，即「是等于否」的一次验算完毕。<br>
+  每一次变换都署名。<b>随机只决定用哪个算子，不决定算子做什么</b>：全过程可审计、可复现。
+</p>
+
+<div class="warn">
+  <b>⚠ 光敏与可读性提示　·</b>
+  画面含高饱和渐变、错位与噪点，但<b>本页不含任何周期闪烁或全屏反相</b>——
+  全部变化为每步一次的单次过渡。按 <code>L</code> 或点「☾ 冷静」可关闭模糊、错位与乱码替换，只留文字与算子署名。
+  若眼部不适，请直接关闭标签页。
+</div>
+
+<div class="panel">
+  <div>
+    <textarea id="in" spellcheck="false">感动是有意义的</textarea>
+    <div class="bar">
+      <button class="primary" id="run">✦ 验算到底</button>
+      <button id="step">› 单步</button>
+      <button id="selfref">◎ 自指</button>
+      <button id="reset">↺ 复位</button>
+      <button id="calm">☾ 冷静</button>
+      <button id="png">⤓ 导出 PNG</button>
+    </div>
+    <div id="stage"></div>
+    <div id="verdict"></div>
+  </div>
+
+  <div class="side">
+    <h3>仪 表</h3>
+    <div class="row"><span>步数</span><span id="m1">0</span></div>
+    <div class="row"><span>可读性</span><span id="m2">100%</span></div>
+    <div class="row"><span>否定度</span><span id="m2b">0%</span></div>
+    <div class="row"><span>不动点距离</span><span id="m3">—</span></div>
+    <div class="row"><span>冷静模式</span><span id="m4">关</span></div>
+    <div class="row"><span>主色相</span><span id="m5">355°</span></div>
+    <input type="range" id="hue" min="0" max="360" value="355">
+
+    <h3>种 子</h3>
+    <div class="seedline">
+      <input type="text" id="seed" value="1" inputmode="numeric">
+      <button id="reseed" title="换一个随机种子">↻</button>
+    </div>
+
+    <h3>快捷键</h3>
+    <div class="row"><span>空格</span><span>单步</span></div>
+    <div class="row"><span>R</span><span>换种子</span></div>
+    <div class="row"><span>L</span><span>冷静模式</span></div>
+    <div class="row"><span>S</span><span>导出 PNG</span></div>
+    <div class="row"><span>Esc</span><span>停止验算</span></div>
+  </div>
+</div>
+
+<div class="foot">
+  <b>已知限制（诚实披露）</b>
+  <ul style="margin:8px 0 0;padding-left:18px">
+    <li>算子是<b>手写规则表</b>，不是推理。它不会理解你的句子，只会改写它的形状 —— 这一点与「意义被取消」这件事本身是一致的，未修。</li>
+    <li>不动点判定为<b>串相等</b>或<b>可读性低于 12%</b>。前者是真正的收敛，后者是耗尽，二者在画面上不作区分，但在判词里写清楚。</li>
+    <li>中文与英文规则分表；混排句子中文规则优先，英文部分可能只被稀释而不被否定。</li>
+    <li>随机已<b>种子化</b>（mulberry32）。同一种子 + 同一输入 = 同一条路径，可完整重放。此前版本未做种子化，无法复现，本次已修。</li>
+    <li>导出分辨率固定 1080×1440，等于当前画面，<b>没有「预览降质、成品全清」的分离机制</b>。</li>
+    <li>超长文本在导出时按宽度自动折行，但<b>超过 12 步的链路在单页内可能放不下</b>，此时导出的下半部分会被裁掉。</li>
+  </ul>
+  <div style="margin-top:12px">证明初步完毕，我不会对此进行完善。</div>
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================================
+   1. 声明式表：改数据不改代码
+   ========================================================================= */
+const AXIOM = "是等于否";                 // 本机公理，自指按钮会把它喂回本机
+
+const ANTI = [
+  ["是","否"],["等于","不等于"],["有","无"],["能","不能"],["会","不会"],
+  ["要","不要"],["好","坏"],["真","假"],["美","丑"],["生","死"],
+  ["存在","不存在"],["永远","从不"],["必须","不必"],["应该","不该"],
+  ["正确","错误"],["真实","虚构"],["开始","结束"],["醒来","睡去"],
+  ["记忆","遗忘"],["未来","不再有未来"],["自由","必然"],["快乐","痛苦"],
+  ["意义","无意义"],["希望","绝望"],["爱","漠然"],["我","非我"],
+  ["一切","什么也不"],["感动","自我感动"],["认真","对一切错误的彻底否定"],
+  ["完整","自身存在的无意义"],["智慧","全不知全不能"],["证明","不必证明"],
+  ["否定","再一次否定"],["善","善的陈述"],["命","钱"],["多","唯一的原罪"]
+];
+const ANTI_EN = [
+  ["is","is not"],["are","are not"],["can","cannot"],["will","will not"],
+  ["love","insanity"],["meaning","ERROR 404"],["hope","never"],["true","false"]
+];
+const PRON  = [["我","你"],["你","他"],["我们","他们"],["他","它"],["自己","那个东西"]];
+const FILL  = ["、","／","░","▒","——","··","　","∷"];
+const TIME  = ["曾经","将要","从未真正","据说","在被记录下来的版本里"];
+const GLYPH = ["ヲ","ミ","░","█","∷","#","ヶ","ˇ","∅"];
+const WRAP  = [
+  s => "所谓" + s + "，不过是一种说法",
+  s => s + "并不成立",
+  s => "没有人说过" + s,
+  s => s + "（这一点到为止）",
+  s => "假如" + s + "，那么什么也没有发生"
+];
+
+// 算子表：每项返回 {text, note}；返回 null 表示本算子不适用，换下一个
+const OPS = [
+  { id:"anti",  name:"反义替换", f:(s,r) => {
+      for (const [a,b] of ANTI)    if (s.includes(a)) return { text:s.replace(a,b), note:"反义替换："+a+" → "+b };
+      for (const [a,b] of ANTI_EN) if (s.includes(a)) return { text:s.replace(a,b), note:"反义替换："+a+" → "+b };
+      return null; } },
+  { id:"wrap",  name:"否定封装", f:(s,r) => ({ text:r.pick(WRAP)(s), note:"否定封装：命题被包进一个不承认它的句式" }) },
+  { id:"inv",   name:"主客倒置", f:(s,r) => { for (const [a,b] of PRON) if (s.includes(a)) return { text:s.replace(a,b), note:"主客倒置："+a+" → "+b }; return null; } },
+  { id:"paren", name:"括号化·内部迭代", f:(s,r) => {
+      if (s.length < 4) return null;
+      const i = Math.floor(r.next()*(s.length-3)), j = i + 2 + Math.floor(r.next()*3);
+      return { text:s.slice(0,i)+"（"+s.slice(i,j)+"）"+s.slice(j), note:"括号化：片段被标为内部迭代" }; } },
+  { id:"del",   name:"删除", f:(s,r) => {
+      if (s.length < 3) return null;
+      const a = [...s], n = 1 + Math.floor(r.next()*2);
+      for (let k=0;k<n;k++) a.splice(Math.floor(r.next()*a.length),1);
+      return { text:a.join(""), note:"删除：抹去 "+n+" 个字符" }; } },
+  { id:"dup",   name:"重复", f:(s,r) => {
+      if (s.length < 3) return null;
+      const i = Math.floor(r.next()*(s.length-2)), j = i + 2 + Math.floor(r.next()*3);
+      return { text:s.slice(0,j)+s.slice(i,j)+s.slice(j), note:"重复：片段被再写一遍，重复不构成肯定" }; } },
+  { id:"time",  name:"时间化", f:(s,r) => ({ text:r.pick(TIME)+s, note:"时间化：命题被推入某个时态" }) },
+  { id:"thin",  name:"稀释", f:(s,r) => {
+      let out = "";
+      for (const c of [...s]) out += (c.trim() && r.next() < 0.16) ? c + r.pick(FILL) : c;
+      return { text:out, note:"稀释：按 16% 密度插入定位符" }; } },
+  { id:"dry",   name:"抽干虚词", f:(s) => {
+      const t = s.replace(/[的了是在和与及就都也很]/g,"");
+      return (t.length >= 2 && t !== s) ? { text:t, note:"抽干：全部虚词被抽走" } : null; } },
+  { id:"void",  name:"抽空", f:(s,r) => {
+      if (s.length < 4) return null;
+      const a = [...s];
+      const n = Math.ceil(a.length * 0.3);
+      for (let k=0;k<n;k++) a[Math.floor(r.next()*a.length)] = "░";
+      return { text:a.join(""), note:"抽空："+n+" 个字符被涂黑" }; } },
+  { id:"ends",  name:"只剩首尾", f:(s) => (s.length < 5 ? null : { text:s[0]+"……"+s[s.length-1], note:"只剩首尾：中间全部作废" }) }
+];
+
+// 冷静模式上限：单点收敛，渲染时取 min(当前值, 上限)
+const CALMCAP = { blur:0, skew:0, glyph:0, glow:0 };
+
+/* =========================================================================
+   2. 种子化随机（同一种子恒定复现）
+   ========================================================================= */
+function mulberry32(a) {
+  let s = a >>> 0;
+  return function () {
+    s = (s + 0x6D2B79F5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function makeR(seed) {
+  const f = mulberry32(seed);
+  return { next: f, pick: a => a[Math.floor(f() * a.length) % a.length] };
+}
+
+/* =========================================================================
+   3. 状态
+   ========================================================================= */
+const MAX = 12;
+let seed = 1;
+let chain = [];
+let running = false;
+let calm = false;
+let isSelf = false;
+
+const $ = id => document.getElementById(id);
+const stage = $("stage");
+
+function eff(k, v) { return (calm && CALMCAP[k] !== undefined) ? Math.min(v, CALMCAP[k]) : v; }
+
+function legibility(s) {
+  if (!s) return 0;
+  const c = [...s];
+  const total = c.filter(x => x.trim()).length || 1;
+  const good = c.filter(x => /[一-龥A-Za-z0-9]/.test(x)).length;
+  return Math.max(0, Math.min(1, good / total));
+}
+
+// 视觉降级用独立种子，保证重绘不改变结果
+function degrade(text, d, i) {
+  const p = eff("glyph", d * 0.38);
+  if (p <= 0) return text;
+  const r = makeR(seed * 7919 + i * 104729);
+  let out = "";
+  for (const c of [...text]) out += (c.trim() && r.next() < p) ? r.pick(GLYPH) : c;
+  return out;
+}
+
+function settle() {
+  chain = [{ name: "原命题 · 输入", text: ($("in").value.trim() || "　") }];
+  running = false;
+  isSelf = false;
+  $("verdict").style.display = "none";
+  render();
+}
+
+function isFixed() {
+  const n = chain.length - 1;
+  if (n < 2) return false;
+  return chain[n].text === chain[n - 1].text;
+}
+function isTerminal() {
+  const n = chain.length - 1;
+  return isFixed() || n >= MAX || legibility(chain[n].text) < 0.12;
+}
+
+function applyOnce() {
+  const n = chain.length - 1;
+  const cur = chain[n].text;
+  const r = makeR(seed * 31 + n * 9176);
+  // 打乱顺序但顺序本身也由种子决定，故可复现
+  const order = OPS.map((o, i) => i).sort((a, b) => r.next() - 0.5);
+  for (const idx of order) {
+    const res = OPS[idx].f(cur, makeR(seed * 31 + n * 9176 + idx));
+    if (res && res.text !== cur) { chain.push({ name: OPS[idx].name, text: res.text }); return; }
+  }
+  chain.push({ name: "无可施加 · 收敛", text: cur });
+}
+
+function render() {
+  stage.innerHTML = "";
+  const n = chain.length - 1;
+  const hueBase = parseInt($("hue").value, 10);
+
+  chain.forEach((s, i) => {
+    const d = n ? i / n : 0;
+    const hue = (hueBase + d * 140) % 360;
+    const el = document.createElement("div");
+    el.className = "step" + (i === 0 ? " head" : "") + (i === n ? " last" : "");
+    let css = "font-size:" + (30 - d * 10).toFixed(1) + "px;";
+    css += "letter-spacing:" + (d * 15).toFixed(2) + "px;";
+    css += "color:hsl(" + hue.toFixed(0) + " " + (100 - d * 35).toFixed(0) + "% " + (74 - d * 22).toFixed(0) + "%);";
+    const blur = eff("blur", d * 1.7), skew = eff("skew", d * 22), glow = eff("glow", d * 3);
+    if (blur > 0) css += "filter:blur(" + blur.toFixed(2) + "px) saturate(" + (1 + d) + ");";
+    if (skew > 0) css += "transform:skewX(" + (((i * 37 + seed) % 100) / 100 - 0.5) * skew + "deg);";
+    if (glow > 0) css += "text-shadow:" + glow.toFixed(1) + "px 0 hsl(" + ((hue + 185) % 360) + " 90% 60%),"
+                      + (-glow).toFixed(1) + "px 0 hsl(" + ((hue + 65) % 360) + " 90% 60%);";
+    css += "opacity:" + (1 - d * 0.32).toFixed(2) + ";";
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = "第 " + i + " 步　" + s.name;
+    const tx = document.createElement("span");
+    tx.className = "txt";
+    tx.style.cssText = css;
+    tx.textContent = degrade(s.text, d, i);
+    el.appendChild(tag); el.appendChild(tx);
+    stage.appendChild(el);
+  });
+
+  const last = chain[n];
+  const fixed = isFixed();
+  $("m1").textContent = String(n);
+  $("m2").textContent = Math.round(legibility(last.text) * 100) + "%";
+  $("m2b").textContent = Math.round((1 - legibility(last.text)) * 100) + "%";
+  $("m3").textContent = fixed ? "0（已抵达）" : (MAX - n) + " 步内";
+  $("m5").textContent = $("hue").value + "°";
+
+  if (isTerminal()) {
+    running = false;
+    const v = $("verdict");
+    v.style.display = "block";
+    let html;
+    if (fixed) {
+      html = "<b>不动点已抵达。</b>第 " + n + " 步与第 " + (n - 1) + " 步的串完全相等 —— 否定算子作用在它自身上不再产生差异。<br>是等于否，验算完毕。";
+    } else {
+      html = "<b>验算中断。</b>" + (n >= MAX ? "已达 " + MAX + " 步上限" : "可读性低于 12%，句子已耗尽")
+           + "。<br>这不是不动点，是材料用完了。两者在画面上不作区分，但在判词里说清楚。";
+    }
+    if (isSelf) {
+      html += '<div class="self">自指条款：本机公理「' + AXIOM + '」已被本机验算。'
+            + (chain[n].text === AXIOM
+               ? "它未被改变 —— 则本机不成立。"
+               : "它已被改写为「" + chain[n].text.slice(0, 40) + "」—— 则「是等于否」成立。")
+            + "</div>";
+    }
+    html += '<br><span style="color:#6f6d68">证明初步完毕，我不会对此进行完善。</span>';
+    v.innerHTML = html;
+  }
+}
+
+function stepOnce() {
+  if (isTerminal()) { render(); return; }
+  applyOnce();
+  render();
+}
+
+function runAll() {
+  if (running) return;
+  running = true;
+  const tick = () => {
+    if (!running) return;
+    if (isTerminal()) { running = false; render(); return; }
+    applyOnce(); render();
+    setTimeout(tick, 620);
+  };
+  tick();
+}
+
+/* =========================================================================
+   4. 导出（1080×1440，纯 Canvas，断网可用）
+   ========================================================================= */
+function wrapText(x, text, maxW) {
+  const lines = [];
+  let cur = "";
+  for (const c of [...text]) {
+    if (x.measureText(cur + c).width > maxW && cur) { lines.push(cur); cur = c; }
+    else cur += c;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+function exportPNG() {
+  const W = 1080, H = 1440;
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const x = c.getContext("2d");
+  const hueBase = parseInt($("hue").value, 10);
+
+  const g = x.createRadialGradient(W / 2, H * 0.1, 0, W / 2, H * 0.1, H * 1.1);
+  g.addColorStop(0, "hsl(" + hueBase + " 70% 13%)");
+  g.addColorStop(1, "#000");
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.textBaseline = "top";
+
+  const n = Math.max(1, chain.length - 1);
+  let y = 100;
+  chain.forEach((s, i) => {
+    const d = n ? i / n : 0;
+    if (y > H - 80) return;
+    const h = (hueBase + d * 140) % 360;
+    x.font = '500 20px "Microsoft YaHei",sans-serif';
+    x.fillStyle = "rgba(255,255,255,.42)";
+    x.fillText("第 " + i + " 步　" + s.name, 70, y);
+    y += 30;
+    x.font = "500 " + Math.round(58 - d * 16) + 'px "Microsoft YaHei",sans-serif';
+    // 超长文本按宽度折行，不再硬截 40 字
+    for (const line of wrapText(x, s.text, W - 140)) {
+      if (y > H - 60) break;
+      if (!calm && d > 0) {
+        x.fillStyle = "hsl(" + ((h + 65) % 360) + " 90% 60%)";
+        x.fillText(line, 70 + d * 5, y + d * 2);
+      }
+      x.fillStyle = "hsl(" + h + " " + (100 - d * 35) + "% " + (74 - d * 22) + "%)";
+      x.fillText(line, 70, y);
+      y += Math.round(66 - d * 14);
+    }
+    y += 18;
+  });
+
+  if (!calm) {
+    const im = x.getImageData(0, 0, W, H), p = im.data;
+    for (let i = 0; i < p.length; i += 4) {
+      const no = (Math.random() - 0.5) * 30;
+      p[i] += no; p[i + 2] -= no;
+    }
+    x.putImageData(im, 0, 0);
+    x.fillStyle = "rgba(0,0,0,.16)";
+    for (let yy = 0; yy < H; yy += 4) x.fillRect(0, yy, W, 2);
+  }
+  const vg = x.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, H * 0.78);
+  vg.addColorStop(0, "rgba(0,0,0,0)");
+  vg.addColorStop(1, "rgba(0,0,0,.85)");
+  x.fillStyle = vg; x.fillRect(0, 0, W, H);
+
+  x.font = '500 18px "Microsoft YaHei",sans-serif';
+  x.fillStyle = "rgba(255,255,255,.5)";
+  x.fillText("种子 " + seed + " · 步数 " + n + " · 是等于否", 70, H - 56);
+
+  const a = document.createElement("a");
+  a.download = "是等于否_" + Date.now() + ".png";
+  a.href = c.toDataURL("image/png");
+  a.click();
+}
+
+/* =========================================================================
+   5. 绑定
+   ========================================================================= */
+function readSeed() {
+  const v = parseInt($("seed").value, 10);
+  return Number.isFinite(v) ? v : 1;
+}
+
+$("run").onclick     = () => { seed = readSeed(); settle(); runAll(); };
+$("step").onclick    = () => { if (chain.length === 1) seed = readSeed(); stepOnce(); };
+$("reset").onclick   = () => { seed = readSeed(); settle(); };
+$("selfref").onclick = () => {
+  seed = readSeed();
+  $("in").value = AXIOM;
+  settle();
+  isSelf = true;
+  runAll();
+};
+$("png").onclick     = exportPNG;
+$("calm").onclick    = () => {
+  calm = !calm;
+  $("calm").classList.toggle("on", calm);
+  $("m4").textContent = calm ? "开" : "关";
+  render();
+};
+$("reseed").onclick  = () => {
+  $("seed").value = String(Math.floor(Math.random() * 99999));
+  seed = readSeed(); settle();
+};
+$("hue").oninput     = () => {
+  document.documentElement.style.setProperty("--hue", $("hue").value);
+  render();
+};
+$("in").addEventListener("input", () => { seed = readSeed(); settle(); });
+$("seed").addEventListener("change", () => { seed = readSeed(); settle(); });
+
+document.addEventListener("keydown", e => {
+  if (/INPUT|TEXTAREA/.test(e.target.tagName)) return;
+  if (e.code === "Space") { e.preventDefault(); stepOnce(); }
+  else if (e.key === "r" || e.key === "R") $("reseed").click();
+  else if (e.key === "l" || e.key === "L") $("calm").click();
+  else if (e.key === "s" || e.key === "S") exportPNG();
+  else if (e.key === "Escape") { running = false; }     // 停止验算，不销毁状态
+});
+
+seed = readSeed();
+settle();
+</script>
+</body>
+</html>

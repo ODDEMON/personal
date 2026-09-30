@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>来访者协议 · The Visitor Protocol</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <main id="stage">
+    <div id="stage-header">
+      <span id="case-id"></span>
+      <span id="gate-label"></span>
+    </div>
+
+    <!-- 入口场景 -->
+    <section id="intro" class="scene">
+      <h1 class="scene-title">来访者协议</h1>
+      <p class="scene-prompt">
+        本协议是一个形式化的否定演算系统。<br>
+        它要做的不是反对哪一种价值，<br>
+        而是证明：<b style="font-weight:500">在语言体系内，没有任何价值占据终极位置</b>。<br>
+        包括这句话本身。
+      </p>
+      <div class="input-area">
+        <input type="text" id="seed-text" placeholder="在此输入你的献词（一句话）" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="choices">
+        <button class="btn primary" id="begin-btn">进入协议</button>
+      </div>
+      <p class="warning">
+        <b>提示</b>：本页面不保存、不发送任何数据；所有运算在浏览器内完成。
+        不含频闪。按 <b>Esc</b> 可在任意步骤重置。
+      </p>
+    </section>
+
+    <!-- 门场景 -->
+    <section id="gate" class="scene" hidden>
+      <h1 class="scene-title" id="gate-title"></h1>
+      <p class="scene-prompt" id="gate-prompt"></p>
+      <p class="theorem" id="gate-theorem"></p>
+      <div class="the-text" id="gate-text"></div>
+      <div class="choices" id="gate-choices"></div>
+      <div class="action-bar" id="gate-action-bar" hidden>
+        <button class="btn primary" id="next-btn">进入下一间</button>
+      </div>
+      <p class="warning" id="gate-warn" hidden>
+        你刚才的选择已被记录，结果已应用。
+      </p>
+    </section>
+
+    <!-- 归档场景 -->
+    <section id="end" class="scene" hidden>
+      <h1 class="scene-title">归档</h1>
+      <p class="scene-prompt">协议已执行完毕。</p>
+      <div class="the-text" id="end-text"></div>
+      <div class="action-bar">
+        <button class="btn" id="cert-btn">生成证明</button>
+        <button class="btn" id="reset-btn">再访一次</button>
+      </div>
+    </section>
+  </main>
+
+  <aside id="panel">
+    <h2>仪 表</h2>
+    <div id="metrics">
+      <div class="metric"><span class="k">步数</span><span class="v" id="m-steps">0</span></div>
+      <div class="metric"><span class="k">完整性</span><span class="v" id="m-integrity">100%</span></div>
+      <div class="metric"><span class="k">全称性</span><span class="v" id="m-universal">0</span></div>
+      <div class="metric"><span class="k">熵</span><span class="v" id="m-entropy">0.00</span></div>
+    </div>
+    <h2>运算记录</h2>
+    <div id="log"></div>
+    <div id="panel-footer">
+      <b>诚实披露</b>：
+      运算基于输入串的形式属性（长度、熵、字符集、全称词计数），而非语义理解。
+      它不判断哪一种价值更好，只证伪「终极」这一位置的可占据性。
+      协议自身的断言在最后一门被施加于自身——否则它只是换了一个新终极。
+    </div>
+  </aside>
+</div>
+
+<div id="cert-overlay">
+  <div id="cert-box"></div>
+  <div id="cert-actions">
+    <button class="btn primary" id="copy-cert">复制到剪贴板</button>
+    <button class="btn" id="close-cert">关闭</button>
+  </div>
+</div>
+
+<script src="protocol.js"></script>
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const { GATES, hash, entropy, integrity, universality, buildCertificate, finalState } = VisitorProtocol;
+
+let caseId = '';
+let input = '';
+let current = '';
+let gateIndex = -1;
+let log = [];
+let selectedChoice = null;
+
+function init() {
+  caseId = 'V-' + Date.now().toString(36).toUpperCase();
+  $('case-id').textContent = caseId;
+  $('gate-label').textContent = '入口';
+
+  $('begin-btn').addEventListener('click', begin);
+  $('seed-text').addEventListener('keydown', e => { if (e.key === 'Enter') begin(); });
+  $('next-btn').addEventListener('click', nextGate);
+  $('cert-btn').addEventListener('click', showCert);
+  $('reset-btn').addEventListener('click', resetAll);
+  $('copy-cert').addEventListener('click', copyCert);
+  $('close-cert').addEventListener('click', () => $('cert-overlay').classList.remove('on'));
+
+  document.addEventListener('keydown', e => {
+    if (/INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    if (e.key === 'Escape') { resetAll(); return; }
+    if (e.key === 'Enter' && !$('gate-action-bar').hidden) nextGate();
+  });
+}
+
+function begin() {
+  input = $('seed-text').value.trim() || '　';
+  current = input;
+  log = [];
+  gateIndex = -1;
+  selectedChoice = null;
+  caseId = 'V-' + Date.now().toString(36).toUpperCase();
+  $('case-id').textContent = caseId;
+  $('log').innerHTML = '';
+  show('gate');
+  nextGate();
+}
+
+function show(id) {
+  ['intro', 'gate', 'end'].forEach(s => { $(s).hidden = (s !== id); });
+}
+
+function nextGate() {
+  selectedChoice = null;
+  gateIndex++;
+  if (gateIndex >= GATES.length) { showEnd(); return; }
+  renderGate();
+}
+
+function renderGate() {
+  const gate = GATES[gateIndex];
+  const hue = hash(current) % 360;
+
+  $('gate-label').textContent = gate.name;
+  $('gate-title').textContent = gate.name;
+  $('gate-prompt').textContent = gate.prompt;
+  $('gate-theorem').textContent = gate.theorem || '';
+  paintText($('gate-text'), current, hue);
+
+  const choices = $('gate-choices');
+  choices.innerHTML = '';
+  gate.choices.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.className = 'btn';
+    b.textContent = c.label;
+    b.onclick = () => applyChoice(i);
+    choices.appendChild(b);
+  });
+
+  $('gate-action-bar').hidden = true;
+  $('gate-warn').hidden = true;
+  updateMetrics();
+}
+
+function paintText(el, text, hue) {
+  el.textContent = text;
+  el.style.borderColor = 'hsl(' + hue + ' 70% 60%)';
+  el.style.color = 'hsl(' + hue + ' 80% 75%)';
+}
+
+function applyChoice(idx) {
+  if (selectedChoice !== null) return;
+  selectedChoice = idx;
+
+  const gate = GATES[gateIndex];
+  const choice = gate.choices[idx];
+  const ctx = { seed: hash(input + gateIndex), original: input, step: gateIndex };
+  const result = choice.op(current, ctx);
+
+  // 状态同步更新：仪表与日志必须在同一步读到新值，
+  // 只有 DOM 重绘延后到淡出之后，否则指标会整整滞后一步
+  current = result.text;
+
+  const box = $('gate-text');
+  box.style.opacity = '0';
+  setTimeout(() => {
+    paintText(box, current, hash(current) % 360);
+    box.style.opacity = '1';
+  }, 200);
+
+  log.push({ gateName: gate.name, choiceLabel: choice.label, note: result.note, text: current });
+  appendLog(gate.name, choice.label, result.note);
+  updateMetrics();
+
+  Array.from($('gate-choices').children).forEach((b, i) => {
+    b.disabled = true;
+    if (i === idx) { b.classList.add('chosen'); }
+    else { b.classList.add('rejected'); }
+  });
+
+  $('gate-action-bar').hidden = false;
+  $('gate-warn').hidden = false;
+}
+
+function appendLog(gate, choice, note) {
+  const entry = document.createElement('div');
+  entry.className = 'entry';
+  const head = document.createElement('div');
+  head.innerHTML = '<b></b> · <span class="choice"></span>';
+  head.querySelector('b').textContent = gate;
+  head.querySelector('.choice').textContent = choice;
+  const body = document.createElement('div');
+  body.textContent = note;
+  entry.appendChild(head);
+  entry.appendChild(body);
+
+  const logBox = $('log');
+  logBox.appendChild(entry);
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+function updateMetrics() {
+  $('m-steps').textContent = String(log.length);
+  $('m-universal').textContent = String(universality(current));
+  $('m-integrity').textContent = (integrity(input, current) * 100).toFixed(0) + '%';
+  $('m-entropy').textContent = entropy(current).toFixed(2);
+}
+
+function showEnd() {
+  show('end');
+  const f = finalState(input, log);
+  $('end-text').textContent = f.text;
+  $('end-text').style.borderColor = '#555';
+  $('end-text').style.color = 'var(--fg)';
+  updateMetrics();
+}
+
+function showCert() {
+  $('cert-box').textContent = buildCertificate(input, log);
+  $('cert-overlay').classList.add('on');
+}
+
+function copyCert() {
+  const text = $('cert-box').textContent;
+  const done = () => {
+    const b = $('copy-cert');
+    const old = b.textContent;
+    b.textContent = '已复制';
+    setTimeout(() => { b.textContent = old; }, 1200);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+
+function fallbackCopy(text, done) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) { /* 无剪贴板权限时静默 */ }
+  document.body.removeChild(ta);
+}
+
+function resetAll() { location.reload(); }
+
+init();
+</script>
+</body>
+</html>

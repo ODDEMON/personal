@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>羊肠小道 · 否 定 版 / THE NARROW PATH</title>
+<style>
+  :root{
+    --bg:#000; --fg:#e8e6e1; --dim:#7a7772; --line:rgba(232,230,225,.14);
+    --acc:#36F6FD; --acc2:#7633FF; --warn:#E24B4A; --panel:#0a0a0c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--fg);
+    font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif}
+  body{padding:20px;max-width:1100px;margin:0 auto}
+
+  h1{font-size:17px;font-weight:500;letter-spacing:.2em;margin:0 0 4px}
+  .sub{font-size:12.5px;color:var(--dim);line-height:1.7;margin:0 0 14px}
+
+  #hud{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;
+    font-size:12px;color:var(--dim)}
+  .chip{border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+  .chip b{color:var(--acc);font-weight:500;font-variant-numeric:tabular-nums}
+  .chip.neg b{color:var(--warn)}
+
+  #wrap{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;
+    background:#050507}
+  canvas{display:block;width:100%;height:auto;cursor:none;touch-action:none}
+
+  #bar{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px}
+  button{background:#141417;color:var(--fg);border:1px solid var(--line);
+    border-radius:8px;padding:7px 14px;font-size:12.5px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--acc);color:var(--acc)}
+  button.on{border-color:var(--acc2);color:var(--acc2)}
+
+  .ov{position:absolute;inset:0;background:rgba(0,0,0,.9);
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    padding:34px;text-align:center;z-index:5}
+  .ov.on{display:flex}
+  .ov h2{font-size:19px;font-weight:500;letter-spacing:.18em;margin-bottom:14px}
+  .ov p{font-size:13.5px;line-height:2;color:var(--dim);max-width:600px;margin-bottom:8px}
+  .ov .thm{font-size:14px;color:var(--fg);border-left:2px solid var(--acc2);
+    padding-left:14px;text-align:left;max-width:600px;margin:16px 0;line-height:1.9}
+  .ov .go{margin-top:20px}
+  .ov button{font-size:14px;padding:10px 26px}
+  .ov .small{font-size:11.5px;color:#5f5e5a;margin-top:16px;line-height:1.8;max-width:560px}
+
+  #cert{text-align:left;max-width:640px;max-height:62vh;overflow-y:auto;
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:22px;font-size:12.5px;line-height:1.95;white-space:pre-wrap;
+    font-family:"Microsoft YaHei",monospace;color:var(--fg)}
+
+  .foot{margin-top:18px;font-size:11.5px;color:#5f5e5a;line-height:1.85}
+  .foot b{color:#8a8781;font-weight:500}
+</style>
+</head>
+<body>
+
+<h1>羊肠小道 · 否 定 版</h1>
+<p class="sub">
+  鼠标即那个点。沿极窄的通道移动，<b style="color:var(--warn);font-weight:500">不要碰壁</b>，
+  走到 NEXT 即过关。通道由一句命题铺成，你走过的地方会融化；
+  每碰一次壁，命题就被施加一次否定算子，并被<b>打回存档点</b>。
+</p>
+
+<div id="hud">
+  <span class="chip">第 <b id="h-lv">1</b> / 6 道</span>
+  <span class="chip neg">偏差 <b id="h-hit">0</b></span>
+  <span class="chip">进度 <b id="h-prog">0%</b></span>
+  <span class="chip">用时 <b id="h-time">0.0s</b></span>
+  <span class="chip">否定度 <b id="h-neg">0%</b></span>
+  <span class="chip" style="border-color:var(--line)">命题 <b id="h-prop"></b></span>
+</div>
+
+<div id="wrap">
+  <canvas id="cv" width="1000" height="620"></canvas>
+
+  <div class="ov on" id="ov-start">
+    <h2>羊 肠 小 道</h2>
+    <p>移动鼠标，小心碰壁，走到 NEXT。</p>
+    <p>这条路由一句话铺成。你走过的地方会融化。<br>你碰到的每一面壁，都会把这句话改写一次。</p>
+    <div class="thm">本作不提供任何奖励。走到终点不意味着你得到了什么，<br>只意味着你还没有被否定到无法前进。</div>
+    <div class="go"><button id="btn-start">START</button></div>
+    <div class="small">无频闪、无全屏反相、无声音。Esc 暂停，L 冷静模式，R 重开本道。<br>若眼部不适，直接关闭页面。</div>
+  </div>
+
+  <div class="ov" id="ov-lv">
+    <h2 id="lv-title"></h2>
+    <p id="lv-prop"></p>
+    <div class="thm" id="lv-thm"></div>
+    <div class="go"><button id="btn-lv">进入本道</button></div>
+  </div>
+
+  <div class="ov" id="ov-pause">
+    <h2>暂 停</h2>
+    <p>时间与壁都停在这里。</p>
+    <div class="go"><button id="btn-resume">继续</button><button id="btn-restart">重开本道</button></div>
+  </div>
+
+  <div class="ov" id="ov-cert">
+    <h2>归 档 证 明</h2>
+    <div id="cert"></div>
+    <div class="go"><button id="btn-copy">复制证明</button><button id="btn-again">再走一次</button></div>
+  </div>
+</div>
+
+<div id="bar">
+  <button id="btn-pause">⏸ 暂停</button>
+  <button id="btn-restart2">↻ 重开本道</button>
+  <button id="btn-calm">☾ 冷静</button>
+  <button id="btn-skip">⇥ 跳过本道</button>
+</div>
+
+<div class="foot">
+  <b>已知限制（诚实披露）</b>：碰撞判定按采样点做，鼠标移动过快时可能穿过薄壁——已沿移动线段补采样，但极端速度下仍有漏检。
+  通道半径逐道收窄，第六道对鼠标精度要求较高，做不完可以直接「跳过本道」，跳过后该道命题按 100% 否定度计入证明。
+  全部数据只在当前窗口，关闭即销毁。
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================================
+   1. 声明式表：改数据不改代码
+   ========================================================================= */
+const W = 1000, H = 620;
+
+// 六道：控制点（归一化）→ Catmull-Rom 平滑 → 半径（通道半宽，px）
+const LEVELS = [
+  { prop:"一切都会好起来", theorem:"全称量词不是特殊性更少的量词，它只是另一种量词。它不比「有些」更接近真。",
+    r:30, pts:[[.06,.50],[.25,.34],[.45,.63],[.66,.37],[.85,.56],[.95,.50]] },
+  { prop:"名可名，非常名", theorem:"名可名，恒名曰自。被命名的东西并不因此存在，命名只是把它关进一扇门。",
+    r:24, pts:[[.05,.20],[.20,.30],[.35,.70],[.50,.25],[.65,.75],[.80,.30],[.94,.55]] },
+  { prop:"我思故我在", theorem:"我在先于我思。而我在无法被思及——思及的那一刻，它已经是关于「我在」的陈述。",
+    r:19, pts:[[.06,.15],[.18,.80],[.30,.20],[.42,.85],[.55,.18],[.68,.82],[.80,.25],[.94,.70]] },
+  { prop:"自由是最高的善", theorem:"自由与必然在形式上无法区分。能选的与不能选的，走的是同一条通道。",
+    r:16, pts:[[.05,.12],[.90,.18],[.08,.32],[.92,.45],[.08,.58],[.92,.70],[.50,.88]] },
+  { prop:"意义是可以找到的", theorem:"寻找意义这一行为本身已经用掉了意义。找到的那件东西，不再是你出发时要找的。",
+    r:13, pts:[[.05,.10],[.86,.14],[.12,.28],[.88,.34],[.10,.50],[.86,.58],[.14,.74],[.90,.80],[.50,.92]] },
+  { prop:"是等于否", theorem:"若此句为真，则它自身亦不占据终极位置。走到这里的你，已经把它走完了。",
+    r:11, pts:[[.05,.50],[.20,.12],[.45,.20],[.62,.50],[.50,.80],[.25,.88],[.12,.70],[.30,.55],[.55,.42],[.78,.35],[.90,.55],[.80,.78],[.62,.70],[.70,.52],[.94,.50]] }
+];
+
+// 否定算子：每碰一次壁施加一个
+const NEGOPS = [
+  { id:"void", f:(s,r) => {
+      const a=[...s]; const idx=Math.floor(r()*a.length);
+      if(a[idx] && a[idx].trim()) a[idx]="░";
+      return a.join(""); } },
+  { id:"anti", f:(s) => s.split("是").join("否").split("有").join("无").split("能").join("不能") },
+  { id:"thin", f:(s,r) => { const a=[...s]; const i=Math.floor(r()*a.length); a.splice(i,0,"、"); return a.join(""); } },
+  { id:"del",  f:(s,r) => { const a=[...s]; if(a.length>2){ a.splice(Math.floor(r()*a.length),1); } return a.join(""); } },
+  { id:"swap", f:(s,r) => { const a=[...s]; if(a.length>2){ const i=Math.floor(r()*(a.length-1)); [a[i],a[i+1]]=[a[i+1],a[i]]; } return a.join(""); } }
+];
+
+// 冷静模式上限
+const CALMCAP = { glow:0, noise:0, vignette:0.12 };
+const GLYPH_MELT = ["░","▒","、","·"];
+
+/* =========================================================================
+   2. 工具
+   ========================================================================= */
+function mulberry32(a){ let s=a>>>0; return function(){ s=(s+0x6D2B79F5)|0;
+  let t=Math.imul(s^(s>>>15),1|s); t=(t+Math.imul(t^(t>>>7),61|t))^t;
+  return ((t^(t>>>14))>>>0)/4294967296; }; }
+const $ = id => document.getElementById(id);
+const cv = $("cv"), ctx = cv.getContext("2d");
+function eff(k,v){ return (calm && CALMCAP[k]!==undefined) ? Math.min(v,CALMCAP[k]) : v; }
+
+function catmullRom(cp, samples){
+  const p = [cp[0], ...cp, cp[cp.length-1]];
+  const out = [];
+  for (let i=0; i<p.length-3; i++){
+    const [p0,p1,p2,p3] = [p[i],p[i+1],p[i+2],p[i+3]];
+    for (let j=0; j<samples; j++){
+      const t = j/samples, t2=t*t, t3=t2*t;
+      out.push([
+        0.5*((2*p1[0]) + (-p0[0]+p2[0])*t + (2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2 + (-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3),
+        0.5*((2*p1[1]) + (-p0[1]+p2[1])*t + (2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2 + (-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3)
+      ]);
+    }
+  }
+  out.push(cp[cp.length-1]);
+  return out;
+}
+
+function buildPath(level){
+  const raw = catmullRom(level.pts, 40);
+  const pad = level.r + 6;
+  const pts = raw.map(([nx,ny]) => ({
+    x: Math.min(W-pad, Math.max(pad, nx*W)),
+    y: Math.min(H-pad, Math.max(pad, ny*H))
+  }));
+  // 弧长表
+  const cum = [0];
+  for (let i=1;i<pts.length;i++){
+    const dx=pts[i].x-pts[i-1].x, dy=pts[i].y-pts[i-1].y;
+    cum.push(cum[i-1] + Math.hypot(dx,dy));
+  }
+  return { pts, cum, len: cum[cum.length-1], r: level.r };
+}
+
+function query(path, x, y){
+  const pts = path.pts;
+  let best = Infinity, bi = 0;
+  for (let i=0;i<pts.length-1;i++){
+    const a=pts[i], b=pts[i+1];
+    const dx=b.x-a.x, dy=b.y-a.y, l2=dx*dx+dy*dy;
+    let t = l2 ? ((x-a.x)*dx + (y-a.y)*dy)/l2 : 0;
+    t = t<0?0:(t>1?1:t);
+    const px=a.x+t*dx, py=a.y+t*dy;
+    const d2=(x-px)*(x-px)+(y-py)*(y-py);
+    if (d2 < best){ best=d2; bi=i; }
+  }
+  return { d:Math.sqrt(best), i:bi };
+}
+
+function pointAt(path, i){
+  const pts = path.pts;
+  const a = pts[Math.max(0,Math.min(pts.length-1,i))];
+  return a;
+}
+
+/* =========================================================================
+   3. 状态
+   ========================================================================= */
+let li = 0;                 // 当前道
+let path = null;            // 当前几何
+let prop = "";              // 当前命题（会被否定算子改写）
+let propOrig = "";
+let hits = 0, totalHits = 0, hitsPer = [];
+let tStart = 0, tAcc = 0, totalTime = 0;
+let maxIdx = 0, cpIdx = 0;
+let armed = false, awaiting = false, paused = false, finished = false, calm = false;
+let mouse = { x:-999, y:-999, has:false };
+let prev = null;
+let vign = 0;               // 碰撞红晕，单次衰减
+let chars = [];             // 通道上的字符
+let lastT = 0;
+let skipped = [];
+
+function loadLevel(i){
+  li = i;
+  const L = LEVELS[i];
+  path = buildPath(L);
+  prop = L.prop; propOrig = L.prop;
+  hits = 0; maxIdx = 0; cpIdx = 0;
+  armed = false; awaiting = false;
+  vign = 0; prev = null;
+  tAcc = 0; tStart = performance.now();
+  buildChars();
+  skipped[i] = false;
+  $("h-lv").textContent = String(i+1);
+  $("h-hit").textContent = "0";
+  $("h-prop").textContent = prop;
+  $("h-neg").textContent = "0%";
+  $("lv-title").textContent = "第 " + (i+1) + " 道 · 半径 " + L.r + "px";
+  $("lv-prop").textContent = "命题：「" + L.prop + "」";
+  $("lv-thm").textContent = L.theorem;
+  show("ov-lv");
+}
+
+// 沿通道铺字符：命题循环填充，走过即融化
+function buildChars(){
+  chars = [];
+  const spacing = 34;
+  const n = Math.floor(path.len / spacing);
+  for (let k=0;k<n;k++){
+    const target = k*spacing;
+    // 二分找弧长位置
+    let lo=0, hi=path.cum.length-1;
+    while (lo < hi-1){ const mid=(lo+hi)>>1; if (path.cum[mid] < target) lo=mid; else hi=mid; }
+    const a = path.pts[lo], b = path.pts[Math.min(lo+1, path.pts.length-1)];
+    const seg = Math.max(1e-6, path.cum[Math.min(lo+1,path.cum.length-1)] - path.cum[lo]);
+    const t = Math.min(1, (target - path.cum[lo]) / seg);
+    chars.push({
+      x: a.x + (b.x-a.x)*t,
+      y: a.y + (b.y-a.y)*t,
+      ang: Math.atan2(b.y-a.y, b.x-a.x),
+      at: target
+    });
+  }
+}
+
+function negRatio(){
+  const o = [...propOrig].filter(c=>c.trim()).length || 1;
+  const now = [...prop].filter(c=>c.trim()).length;
+  let same = 0;
+  const a=[...propOrig].filter(c=>c.trim()), b=[...prop].filter(c=>c.trim());
+  for (let i=0;i<Math.min(a.length,b.length);i++) if (a[i]===b[i]) same++;
+  return Math.max(0, Math.min(1, 1 - same/o));
+}
+
+/* =========================================================================
+   4. 流程
+   ========================================================================= */
+function show(id){ ["ov-start","ov-lv","ov-pause","ov-cert"].forEach(o => $(o).classList.toggle("on", o===id)); }
+function hideAll(){ ["ov-start","ov-lv","ov-pause","ov-cert"].forEach(o => $(o).classList.remove("on")); }
+function isBlocked(){ return ["ov-start","ov-lv","ov-pause","ov-cert"].some(o => $(o).classList.contains("on")); }
+
+function onHit(){
+  hits++; totalHits++;
+  const r = mulberry32(li*1013 + hits*7919);
+  const op = NEGOPS[Math.floor(r()*NEGOPS.length) % NEGOPS.length];
+  prop = op.f(prop, r);
+  if (![...prop].some(c=>c.trim())) prop = "░";
+  vign = eff("vignette", 0.34);
+  maxIdx = cpIdx;               // 打回存档点
+  awaiting = true;
+  $("h-hit").textContent = String(hits);
+  $("h-prop").textContent = prop;
+  $("h-neg").textContent = Math.round(negRatio()*100) + "%";
+}
+
+function checkpoints(){
+  const n = path.pts.length - 1;
+  return [0, Math.floor(n*0.25), Math.floor(n*0.5), Math.floor(n*0.75)];
+}
+
+function nextLevel(){
+  hitsPer[li] = { hits, neg: negRatio(), time: tAcc };
+  totalTime += tAcc;
+  if (li >= LEVELS.length - 1){ finished = true; showCert(); return; }
+  loadLevel(li + 1);
+}
+
+function skipLevel(){
+  skipped[li] = true;
+  hitsPer[li] = { hits, neg: 1, time: tAcc };
+  totalTime += tAcc;
+  if (li >= LEVELS.length - 1){ finished = true; showCert(); return; }
+  loadLevel(li + 1);
+}
+
+function showCert(){
+  const lines = [];
+  lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  lines.push("羊肠小道 · 归档证明");
+  lines.push("THE NARROW PATH · CERTIFICATE");
+  lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  lines.push("案件编号：P-" + Date.now().toString(36).toUpperCase());
+  lines.push("总偏差次数：" + totalHits);
+  lines.push("总用时：" + (totalTime/1000).toFixed(1) + " 秒");
+  lines.push("");
+  lines.push("逐道记录：");
+  LEVELS.forEach((L,i) => {
+    const h = hitsPer[i] || { hits:0, neg:0, time:0 };
+    lines.push((i+1) + ". 「" + L.prop + "」");
+    lines.push("   偏差 " + h.hits + " · 否定度 " + Math.round(h.neg*100) + "%"
+      + (skipped[i] ? " · 已跳过" : "") + " · " + (h.time/1000).toFixed(1) + "s");
+  });
+  lines.push("");
+  lines.push("自指条款：本作声称「路不会为你变宽」。");
+  lines.push("　　　　　而你刚刚通关——这是否构成对该声称的否定？");
+  lines.push("　　　　　系统回答：不构成。");
+  lines.push("　　　　　你并未使路变宽，你只是学会了不碰壁。");
+  lines.push("");
+  lines.push("说明：本证明仅在当前窗口内有效。关闭标签页即销毁。");
+  lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  $("cert").textContent = lines.join("\n");
+  show("ov-cert");
+}
+
+/* =========================================================================
+   5. 渲染
+   ========================================================================= */
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = "#050507";
+  ctx.fillRect(0,0,W,H);
+
+  if (!path) return;
+  const r = path.r;
+  const hueA = (li * 47 + 185) % 360;
+  const glow = eff("glow", 1);
+
+  // 起点 / 存档点 / 终点
+  const cps = checkpoints();
+  const nEnd = path.pts.length - 1;
+
+  // 通道：外发光壁 + 内部暗色
+  ctx.lineJoin = "round"; ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(path.pts[0].x, path.pts[0].y);
+  for (let i=1;i<path.pts.length;i++) ctx.lineTo(path.pts[i].x, path.pts[i].y);
+
+  ctx.strokeStyle = "hsl(" + hueA + " 70% 52%)";
+  ctx.lineWidth = r*2 + (glow ? 6 : 2);
+  ctx.globalAlpha = glow ? 0.35 : 0.5;
+  ctx.stroke();
+
+  ctx.strokeStyle = "hsl(" + hueA + " 85% 62%)";
+  ctx.lineWidth = 2;
+  ctx.globalAlpha = 0.85;
+  ctx.stroke();
+
+  ctx.strokeStyle = "#050507";
+  ctx.lineWidth = r*2;
+  ctx.globalAlpha = 1;
+  ctx.stroke();
+
+  // 通道上的字符：走过的融化
+  const passedArc = path.cum[Math.min(maxIdx, path.cum.length-1)];
+  ctx.font = '500 15px "Microsoft YaHei",sans-serif';
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  const src = [...prop].filter(c=>c.trim());
+  chars.forEach((c,k) => {
+    const ch = src.length ? src[k % src.length] : "░";
+    const melted = c.at < passedArc;
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.rotate(c.ang);
+    if (melted){
+      ctx.fillStyle = "rgba(120,120,130,.18)";
+      ctx.font = '500 13px "Microsoft YaHei",sans-serif';
+      ctx.fillText(GLYPH_MELT[k % GLYPH_MELT.length], 0, 0);
+    } else {
+      ctx.fillStyle = "rgba(232,230,225,.30)";
+      ctx.font = '500 15px "Microsoft YaHei",sans-serif';
+      ctx.fillText(ch, 0, 0);
+    }
+    ctx.restore();
+  });
+
+  // 存档点
+  cps.forEach((ci, k) => {
+    const p = pointAt(path, ci);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 5, 0, Math.PI*2);
+    ctx.strokeStyle = k === 0 ? "hsl(140 60% 55%)" : "rgba(232,230,225,.45)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  });
+
+  // NEXT
+  const e = path.pts[nEnd];
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, r*0.55, 0, Math.PI*2);
+  ctx.strokeStyle = "hsl(" + ((hueA+120)%360) + " 85% 62%)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.font = '500 10px "Microsoft YaHei",sans-serif';
+  ctx.fillStyle = "hsl(" + ((hueA+120)%360) + " 85% 70%)";
+  ctx.textAlign = "center";
+  ctx.fillText("NEXT", e.x, e.y - r*0.55 - 9);
+
+  // 待归位提示
+  if (awaiting){
+    const p = pointAt(path, cpIdx);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r*0.8, 0, Math.PI*2);
+    ctx.strokeStyle = "rgba(226,75,74,.75)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // 玩家
+  if (mouse.has){
+    if (!glow){
+      ctx.beginPath(); ctx.arc(mouse.x, mouse.y, 16, 0, Math.PI*2);
+      ctx.fillStyle = "rgba(54,246,253,.14)"; ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(mouse.x, mouse.y, 4.5, 0, Math.PI*2);
+    ctx.fillStyle = awaiting ? "#E24B4A" : "#36F6FD";
+    ctx.fill();
+  }
+
+  // 碰撞红晕（单次衰减，非周期）
+  if (vign > 0.001){
+    const g = ctx.createRadialGradient(W/2, H/2, H*0.25, W/2, H/2, H*0.8);
+    g.addColorStop(0, "rgba(226,75,74,0)");
+    g.addColorStop(1, "rgba(226,75,74," + vign.toFixed(3) + ")");
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  }
+}
+
+/* =========================================================================
+   6. 主循环
+   ========================================================================= */
+function tick(now){
+  requestAnimationFrame(tick);
+  const dt = Math.min(50, now - lastT); lastT = now;
+  if (vign > 0) vign = Math.max(0, vign - dt/420);
+
+  if (!isBlocked() && !paused && !finished && path){
+    tAcc += dt;
+    $("h-time").textContent = (tAcc/1000).toFixed(1) + "s";
+
+    if (mouse.has){
+      const q = query(path, mouse.x, mouse.y);
+      const r = path.r;
+
+      // 沿移动线段补采样，避免高速穿壁
+      let hit = false;
+      if (prev && !awaiting){
+        const dx = mouse.x-prev.x, dy = mouse.y-prev.y;
+        const dist = Math.hypot(dx,dy);
+        const steps = Math.min(12, Math.ceil(dist / Math.max(4, r*0.5)));
+        for (let s=1; s<=steps; s++){
+          const px = prev.x + dx*(s/steps), py = prev.y + dy*(s/steps);
+          if (query(path, px, py).d > r - 2){ hit = true; break; }
+        }
+      }
+      if (!awaiting && q.d > r - 2) hit = true;
+
+      if (hit){ onHit(); }
+      else if (!awaiting){
+        if (!armed){
+          // 必须先把点放到起点才生效
+          if (q.i <= 2 && q.d < r) armed = true;
+        } else {
+          if (q.i > maxIdx) maxIdx = q.i;
+          const cps = checkpoints();
+          for (const ci of cps) if (q.i >= ci) cpIdx = ci;
+        }
+      } else {
+        // 归位：回到存档点即恢复
+        if (Math.abs(q.i - cpIdx) <= 3 && q.d < r) awaiting = false;
+      }
+      prev = { x:mouse.x, y:mouse.y };
+    }
+
+    const nEnd = path.pts.length - 1;
+    const prog = Math.min(100, Math.round(maxIdx / nEnd * 100));
+    $("h-prog").textContent = prog + "%";
+    if (armed && maxIdx >= nEnd - 5){
+      const e = path.pts[nEnd];
+      if (Math.hypot(mouse.x-e.x, mouse.y-e.y) < path.r*2) nextLevel();
+    }
+  }
+  draw();
+}
+
+/* =========================================================================
+   7. 输入
+   ========================================================================= */
+function toCanvas(e){
+  const b = cv.getBoundingClientRect();
+  return { x:(e.clientX-b.left)*(W/b.width), y:(e.clientY-b.top)*(H/b.height) };
+}
+cv.addEventListener("mousemove", e => { const p = toCanvas(e); mouse = { x:p.x, y:p.y, has:true }; });
+cv.addEventListener("mouseleave", () => { mouse.has = false; prev = null; });
+cv.addEventListener("mouseenter", e => { const p = toCanvas(e); mouse = { x:p.x, y:p.y, has:true }; });
+
+$("btn-start").onclick = () => { hideAll(); loadLevel(0); };
+$("btn-lv").onclick    = () => { hideAll(); tStart = performance.now(); };
+$("btn-resume").onclick= () => { paused = false; hideAll(); };
+$("btn-restart").onclick = () => { paused = false; loadLevel(li); };
+$("btn-restart2").onclick = () => { loadLevel(li); };
+$("btn-pause").onclick = () => { paused = true; show("ov-pause"); };
+$("btn-skip").onclick = () => { if (!isBlocked() || true) skipLevel(); };
+$("btn-calm").onclick = () => { calm = !calm; $("btn-calm").classList.toggle("on", calm); };
+$("btn-copy").onclick = () => {
+  const t = $("cert").textContent;
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).catch(()=>{});
+  const b = $("btn-copy"); const o = b.textContent; b.textContent = "已复制";
+  setTimeout(()=> b.textContent = o, 1200);
+};
+$("btn-again").onclick = () => location.reload();
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape"){
+    if ($("ov-cert").classList.contains("on")) return;
+    paused = !paused; show(paused ? "ov-pause" : "");
+    if (!paused) hideAll();
+  }
+  else if (e.key === "l" || e.key === "L") $("btn-calm").click();
+  else if (e.key === "r" || e.key === "R") loadLevel(li);
+});
+
+/* =========================================================================
+   8. 启动
+   ========================================================================= */
+// 测试钩子：仅供 test/smoke.mjs 使用，不参与任何游戏逻辑
+window.__NP__ = {
+  LEVELS,
+  get path(){ return path; }, get prop(){ return prop; },
+  get maxIdx(){ return maxIdx; }, get hits(){ return hits; },
+  get armed(){ return armed; }, get awaiting(){ return awaiting; },
+  get li(){ return li; }, get cpIdx(){ return cpIdx; },
+  query, loadLevel, buildPath
+};
+
+buildPath(LEVELS[0]);
+$("h-prop").textContent = LEVELS[0].prop;
+requestAnimationFrame(t => { lastT = t; tick(t); });
+</script>
+</body>
+</html>
