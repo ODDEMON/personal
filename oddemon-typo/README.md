@@ -59,13 +59,23 @@
 | 项 | 要求 |
 | --- | --- |
 | Python | 3.10+ |
-| Gradio | **6.x**（实测 6.27.0；`css` / `head` 参数在 6.x 中属于 `launch()` 而非 `Blocks()`） |
+| Gradio | **6.x**（实测 6.27.0 / 6.29.0；`css` / `head` 参数在 6.x 中属于 `launch()` 而非 `Blocks()`） |
 | Node.js | 18+，**仅在运行冒烟测试时需要** |
 
 ### 安装与启动
 
+**一键启动**（会自动建 `.venv` 并装依赖，推荐第一次用）：
+
 ```bash
-pip install "gradio>=6,<7"
+# Windows：双击 start.bat
+# macOS / Linux：
+chmod +x start.sh && ./start.sh
+```
+
+**手动启动**：
+
+```bash
+pip install -r requirements.txt   # 等价于 pip install "gradio>=6,<7"
 python app.py
 ```
 

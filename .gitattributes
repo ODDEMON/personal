@@ -1,0 +1,14 @@
+# 换行符：目标是「clone 下来能跑，下载 ZIP 解压后也能跑」
+* text=auto
+
+# .sh 必须是 LF，否则 Linux/macOS 报 bad interpreter
+*.sh   text eol=lf
+
+# .bat 不做任何转换：仓库里存的就是 CRLF。
+# 若被规范化成 LF，下载 ZIP 的人在 Windows 上双击可能失效（goto/标签解析异常）。
+*.bat  -text
+
+# 二进制，禁止任何转换
+*.png  binary
+*.jpg  binary
+*.ico  binary

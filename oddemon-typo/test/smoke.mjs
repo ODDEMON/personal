@@ -1,21 +1,20 @@
 /**
  * 无头冒烟测试：用 jsdom + 模拟 2D 上下文跑通整条渲染管线。
  * 目的不是校验像素，而是抓运行时错误（未定义变量、签名错误、空引用）。
+ * 运行（先在仓库根目录执行一次 npm install）：npm test
  */
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 
-/* jsdom 可能装在项目里，也可能装在托管的 node 工作区，两边都试一下 */
-let JSDOM;
-try {
-  ({ JSDOM } = await import("jsdom"));
-} catch {
-  const req = createRequire("file:///C:/Users/Administrator/.workbuddy/binaries/node/workspace/package.json");
-  ({ JSDOM } = req("jsdom"));
-}
+/* jsdom 装在仓库根目录的 node_modules 里（npm install 一次即可）。
+   用 createRequire 复用 CJS 解析，它会自动向上查找到仓库根，不依赖任何绝对路径。 */
+const require = createRequire(import.meta.url);
+const { JSDOM } = require("jsdom");
 
-const APP = path.resolve("D:/__SOMETHING_REAL__/AI_Work/personal/oddemon-typo");
+/* APP = 本文件所在目录的上一级，即 oddemon-typo/ —— 换机器也不失效 */
+const APP = fileURLToPath(new URL("..", import.meta.url));
 const JS = fs.readFileSync(path.join(APP, "assets/engine.js"), "utf8");
 
 const errors = [];

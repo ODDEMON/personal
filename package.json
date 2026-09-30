@@ -1,0 +1,19 @@
+{
+  "name": "oddemon-toys",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Four offline toys about negation. No backend, no build step, no network at runtime.",
+  "scripts": {
+    "test": "node game/test/smoke.mjs && node proof/test/smoke.mjs && node the-visitor-protocol/test/smoke.mjs && node oddemon-typo/test/smoke.mjs",
+    "test:game": "node game/test/smoke.mjs",
+    "test:proof": "node proof/test/smoke.mjs",
+    "test:visitor": "node the-visitor-protocol/test/smoke.mjs",
+    "test:typo": "node oddemon-typo/test/smoke.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

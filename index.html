@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ODDEMON · 四件离线玩具</title>
+<style>
+  :root{
+    --bg:#0a0a0b; --fg:#c9c9cf; --dim:#5a5a63; --line:#1c1c20;
+    --hi:#d8d8de; --warn:#8a6a3a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+  body{
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:14px;line-height:1.75;
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:48px 24px;
+  }
+  main{width:100%;max-width:660px}
+  h1{
+    font-size:14px;font-weight:400;letter-spacing:.22em;
+    color:var(--hi);margin:0 0 4px;
+  }
+  .sub{color:var(--dim);font-size:12px;margin:0 0 40px;letter-spacing:.06em}
+  ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+  li{border-bottom:1px solid var(--line)}
+  a{
+    display:block;padding:18px 2px;text-decoration:none;color:var(--fg);
+    transition:color .15s,background .15s;
+  }
+  a:hover,a:focus{color:var(--hi);background:#101014;outline:none}
+  .row{display:flex;align-items:baseline;gap:12px}
+  .idx{color:var(--dim);font-size:11px;min-width:22px}
+  .name{color:var(--hi);letter-spacing:.04em}
+  .tag{
+    font-size:10px;letter-spacing:.1em;color:var(--dim);
+    border:1px solid var(--line);padding:1px 6px;margin-left:auto;white-space:nowrap;
+  }
+  .desc{color:var(--dim);font-size:12px;margin:6px 0 0 34px;max-width:52ch}
+  .desc b{color:var(--fg);font-weight:400}
+  footer{
+    margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:11px;line-height:1.9;
+  }
+  footer a{display:inline;padding:0;color:var(--dim);text-decoration:underline}
+  footer a:hover{background:none;color:var(--fg)}
+  .note{color:var(--warn)}
+</style>
+</head>
+<body>
+<main>
+  <h1>ODDEMON</h1>
+  <p class="sub">四件离线玩具 · 不联网 · 无后端 · 不收集任何数据</p>
+
+  <ul>
+    <li>
+      <a href="game/index.html">
+        <span class="row"><span class="idx">01</span><span class="name">羊肠小道 · 否定版</span><span class="tag">打开即玩</span></span>
+        <p class="desc">鼠标控一点走过窄道。撞墙的代价不是重来，是<b>命题被改写一次</b>，然后退回存档点。六道逐道收窄，通关只给一张证明。</p>
+      </a>
+    </li>
+    <li>
+      <a href="proof/index.html">
+        <span class="row"><span class="idx">02</span><span class="name">是 等于 否 · 验算器</span><span class="tag">打开即玩</span></span>
+        <p class="desc">输入一句话，交给否定算子一路推到不动点。同种子必得同结果，<b>可复现、可自证</b>；不会越过不动点继续推。</p>
+      </a>
+    </li>
+    <li>
+      <a href="the-visitor-protocol/index.html">
+        <span class="row"><span class="idx">03</span><span class="name">来访者协议 v1.2</span><span class="tag">打开即玩</span></span>
+        <p class="desc">六道门，每门三个选择。<b>选择只决定否定的形式，不改变否定本身</b>。最后一门把协议自己的断言交出去被否定。</p>
+      </a>
+    </li>
+    <li>
+      <a href="oddemon-typo/README.md">
+        <span class="row"><span class="idx">04</span><span class="name">ODDEMON 艺术字生成器</span><span class="tag">需 Python 3.9+</span></span>
+        <p class="desc">文字 → 艺术字实时生成器。渲染全在浏览器端，Gradio 只起一个本地服务。<b>需要下载后本地运行</b>，网页上跑不起来：见 <code>start.bat</code> / <code>start.sh</code>。</p>
+      </a>
+    </li>
+    <li>
+      <a href="%E5%8F%8D%E6%BC%94%E8%AE%BE%E8%AE%A1%E6%B3%95/%E9%80%9A%E7%94%A8%E8%A7%84%E5%BE%8B%E6%8F%90%E7%A4%BA%E8%AF%8D.md">
+        <span class="row"><span class="idx">05</span><span class="name">反演设计法 · 通用规律提示词</span><span class="tag">只读</span></span>
+        <p class="desc">从以上作品反向推出的一套生成规则，含代码格式规范。<b>喂给模型即可生成同类新玩具。</b></p>
+      </a>
+    </li>
+  </ul>
+
+  <footer>
+    否定施加于符号，不施加于人。全过程可审计，不掩饰。<br>
+    本页不加载任何外部资源；关闭标签页即销毁全部输入。<br>
+    <span class="note">若感到不适，随时关闭即可——出口常驻，不设埋点。</span><br>
+    源码与运行说明见 <a href="README.md">README.md</a>。
+  </footer>
+</main>
+</body>
+</html>

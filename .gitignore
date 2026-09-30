@@ -1,0 +1,24 @@
+# 本机工作区数据（记忆、会话）—— 不入库
+.workbuddy/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 运行产物（程序启动时会自动重建该目录）
+oddemon-typo/outputs/*
+!oddemon-typo/outputs/.gitkeep
+
+# Node（仅冒烟测试需要，npm install 后生成）
+node_modules/
+
+# 临时文件
+*.log
+
+# 系统
+.DS_Store
+Thumbs.db
+desktop.ini

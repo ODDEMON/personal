@@ -3,7 +3,9 @@
   ---------------------------------------------------------------------------
   jsdom 没有真实 Canvas，这里注入一个 no-op 2D 上下文替身：
   目的不是校验像素，而是抓运行时错误、几何异常与状态机断裂。
-  运行：NODE_PATH=<jsdom 所在 node_modules> node test/smoke.mjs
+  运行（先在仓库根目录执行一次 npm install）：
+      npm test
+      node game/test/smoke.mjs
 */
 
 import path from "node:path";

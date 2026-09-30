@@ -57,12 +57,22 @@ The built-in preset **“Low-intensity · readable”** gets you there in one cl
 | Requirement | Version |
 | --- | --- |
 | Python | 3.10+ |
-| Gradio | **6.x** (tested on 6.27.0; note that `css` / `head` belong to `launch()`, not `Blocks()`, in 6.x) |
+| Gradio | **6.x** (tested on 6.27.0 / 6.29.0; note that `css` / `head` belong to `launch()`, not `Blocks()`, in 6.x) |
 | Node.js | 18+, **only needed to run the smoke test** |
 
+**One-click launcher** (creates `.venv` and installs everything for you — recommended for the first run):
+
 ```bash
-pip install "gradio>=6,<7"
-python app.py          # http://127.0.0.1:7860
+# Windows: double-click start.bat
+# macOS / Linux:
+chmod +x start.sh && ./start.sh
+```
+
+**Manual**:
+
+```bash
+pip install -r requirements.txt   # same as: pip install "gradio>=6,<7"
+python app.py                     # http://127.0.0.1:7860
 ```
 
 ```bash

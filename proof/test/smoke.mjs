@@ -1,7 +1,9 @@
 /*
   验算器 · 无头冒烟测试
   目的不是校验像素，而是抓运行时错误、状态机泄漏与不可复现。
-  运行：NODE_PATH=<jsdom 所在 node_modules> node test/smoke.mjs
+  运行（先在仓库根目录执行一次 npm install）：
+      npm test
+      node proof/test/smoke.mjs
 */
 
 import path from "node:path";
