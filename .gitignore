@@ -6,11 +6,19 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .venv/
+.venv*/
 venv/
+
+# 本机 Python 解释器路径（各人机器不同，不入库）
+python.txt
 
 # 运行产物（程序启动时会自动重建该目录）
 oddemon-typo/outputs/*
 !oddemon-typo/outputs/.gitkeep
+
+# 本机解释器选择（每人路径不同，不该入库）
+python.txt
+.vscode/
 
 # Node（仅冒烟测试需要，npm install 后生成）
 node_modules/

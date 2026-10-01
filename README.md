@@ -31,7 +31,7 @@
 
 这是唯一需要 Python 的一个（Gradio 只用来起一个本地服务，渲染全在浏览器端完成）。
 
-要求：**Python 3.10+**。首次启动会自动建虚拟环境并装依赖，之后秒开。
+要求：**Python 3.10+**，且装有 gradio。若解释器里已经有 gradio，启动器**直接跑 `app.py`**——不建虚拟环境、不下载、不重装；没有才会建 `.venv` 装一次。
 
 ```bash
 # Windows
@@ -41,18 +41,20 @@
 chmod +x start.sh && ./start.sh
 ```
 
+**用哪个 Python**（命中即止）：`PYTHON_EXE` 环境变量 → 同目录 `python.txt`（一行完整路径）→ PATH 上的 `python` → Windows `py`。
+`python.txt` 是本机覆盖项，已 gitignore。PATH 上混杂了多个 Python（比如 msys64 那个）时，写这个文件或设环境变量即可钉死。
+
 也可以手动：
 
 ```bash
 cd oddemon-typo
-python -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt   # Windows: .venv\Scripts\python.exe
-.venv/bin/python app.py
+python -c "import gradio"                    # 有输出即已装好，直接下一步
+python app.py                                # 否则先 pip install -r requirements.txt
 ```
 
 启动后打开 <http://127.0.0.1:7860>。端口被占用时会自动顺延到 7861、7862……（也可自行指定：`PORT=8080 python app.py`）。
 
-依赖只有一个：`gradio>=6,<7`（见 `oddemon-typo/requirements.txt`，实测 6.27.0 / Python 3.13）。
+依赖只有一个：`gradio>=6,<7`（见 `oddemon-typo/requirements.txt`，实测 6.27.0 / 6.29.0）。
 
 ## 三、冒烟测试（可选）
 

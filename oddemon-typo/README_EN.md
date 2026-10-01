@@ -60,13 +60,26 @@ The built-in preset **“Low-intensity · readable”** gets you there in one cl
 | Gradio | **6.x** (tested on 6.27.0 / 6.29.0; note that `css` / `head` belong to `launch()`, not `Blocks()`, in 6.x) |
 | Node.js | 18+, **only needed to run the smoke test** |
 
-**One-click launcher** (creates `.venv` and installs everything for you — recommended for the first run):
+**One-click launcher** (recommended):
 
 ```bash
 # Windows: double-click start.bat
 # macOS / Linux:
 chmod +x start.sh && ./start.sh
 ```
+
+The launcher checks whether your interpreter **already has gradio**. If it does, `app.py` runs with it directly — no virtualenv, no download, nothing reinstalled. A `.venv` is only built when gradio is missing.
+
+**Which Python is used** (first match wins):
+
+| Order | Source |
+| --- | --- |
+| 1 | `PYTHON_EXE` environment variable |
+| 2 | `python.txt` next to the launcher — one line, the full path to `python.exe` |
+| 3 | `python` / `python3` on PATH |
+| 4 | the Windows `py` launcher |
+
+`python.txt` is a per-machine override and is gitignored.
 
 **Manual**:
 

@@ -64,13 +64,26 @@
 
 ### 安装与启动
 
-**一键启动**（会自动建 `.venv` 并装依赖，推荐第一次用）：
+**一键启动**（推荐）：
 
 ```bash
 # Windows：双击 start.bat
 # macOS / Linux：
 chmod +x start.sh && ./start.sh
 ```
+
+启动器会先看你指定的解释器里**有没有 gradio**：有就直接跑 `app.py`，不建虚拟环境、不下载、不重装；没有才会建 `.venv` 并装一次。
+
+**用哪个 Python**（按优先级，第一个命中的生效）：
+
+| 优先级 | 方式 |
+| --- | --- |
+| 1 | 环境变量 `PYTHON_EXE`（Windows：`set PYTHON_EXE=D:\path\python.exe`） |
+| 2 | 同目录下的 `python.txt`，只写一行完整路径：`E:\PPPYYYTTTHHHOOONNN3.12\python.exe` |
+| 3 | PATH 上的 `python` / `python3` |
+| 4 | Windows 的 `py` 启动器 |
+
+`python.txt` 是本机覆盖项，已加入 `.gitignore`，不会进仓库——换机器各写各的。
 
 **手动启动**：
 
