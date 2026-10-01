@@ -3,95 +3,359 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ODDEMON · 四件离线玩具</title>
+<title>总台 · 归档协议</title>
 <style>
   :root{
     --bg:#0a0a0b; --fg:#c9c9cf; --dim:#5a5a63; --line:#1c1c20;
-    --hi:#d8d8de; --warn:#8a6a3a;
+    --hi:#d8d8de; --acc:#8f7ad6; --warn:#8a6a3a;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
   body{
     font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
-    font-size:14px;line-height:1.75;
-    min-height:100vh;display:flex;align-items:center;justify-content:center;
-    padding:48px 24px;
+    font-size:14px;line-height:1.8;
+    min-height:100vh;display:flex;justify-content:center;padding:44px 20px;
   }
-  main{width:100%;max-width:660px}
-  h1{
-    font-size:14px;font-weight:400;letter-spacing:.22em;
-    color:var(--hi);margin:0 0 4px;
+  main{width:100%;max-width:700px}
+
+  h1{font-size:14px;font-weight:400;letter-spacing:.2em;color:var(--hi);margin:0}
+  .title-sub{color:var(--dim);font-size:12px;margin:6px 0 0;letter-spacing:.04em}
+  .dedi{
+    margin:22px 0 0;padding:14px 16px;border-left:2px solid var(--acc);
+    color:var(--dim);font-size:12px;line-height:1.9;
   }
-  .sub{color:var(--dim);font-size:12px;margin:0 0 40px;letter-spacing:.06em}
-  ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+  .dedi b{color:var(--fg);font-weight:400}
+
+  section{margin-top:34px}
+  h2{
+    font-size:11px;font-weight:400;letter-spacing:.24em;color:var(--dim);
+    margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line);
+  }
+
+  /* ---- 编号区 ---- */
+  .docket{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .case{
+    font-size:19px;letter-spacing:.12em;color:var(--hi);
+    border:1px solid var(--line);padding:6px 14px;
+  }
+  .seed{color:var(--dim);font-size:12px}
+  .seed b{color:var(--fg);font-weight:400}
+  button{
+    font:inherit;font-size:12px;color:var(--fg);background:#101014;
+    border:1px solid var(--line);padding:6px 12px;cursor:pointer;
+    letter-spacing:.06em;transition:.15s;
+  }
+  button:hover{color:var(--hi);border-color:var(--acc)}
+  .hint{color:var(--dim);font-size:11px;margin:10px 0 0;line-height:1.8}
+
+  /* ---- 入口 ---- */
+  ul{list-style:none;margin:0;padding:0}
   li{border-bottom:1px solid var(--line)}
-  a{
-    display:block;padding:18px 2px;text-decoration:none;color:var(--fg);
-    transition:color .15s,background .15s;
+  li:first-child{border-top:1px solid var(--line)}
+  a.entry{
+    display:block;padding:16px 2px;text-decoration:none;color:var(--fg);
+    transition:background .15s;
   }
-  a:hover,a:focus{color:var(--hi);background:#101014;outline:none}
-  .row{display:flex;align-items:baseline;gap:12px}
-  .idx{color:var(--dim);font-size:11px;min-width:22px}
+  a.entry:hover,a.entry:focus{background:#101014;outline:none}
+  .row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .key{color:var(--dim);font-size:11px;min-width:16px}
   .name{color:var(--hi);letter-spacing:.04em}
   .tag{
     font-size:10px;letter-spacing:.1em;color:var(--dim);
     border:1px solid var(--line);padding:1px 6px;margin-left:auto;white-space:nowrap;
   }
-  .desc{color:var(--dim);font-size:12px;margin:6px 0 0 34px;max-width:52ch}
+  .tag.done{color:var(--acc);border-color:#332a4d}
+  .desc{color:var(--dim);font-size:12px;margin:6px 0 0 26px;max-width:54ch}
   .desc b{color:var(--fg);font-weight:400}
+
+  /* ---- 卷宗 ---- */
+  #ledger{margin:0;padding:0;list-style:none;font-size:12px}
+  #ledger li{
+    display:flex;gap:10px;align-items:baseline;
+    padding:9px 2px;border-bottom:1px solid var(--line);
+  }
+  #ledger li:first-child{border-top:1px solid var(--line)}
+  #ledger .pj{color:var(--acc);min-width:132px}
+  #ledger .vd{color:var(--fg);flex:1}
+  #ledger .cs{color:var(--dim)}
+  #ledger .empty{color:var(--dim);border:0;padding:12px 2px}
+
+  /* ---- 总判 ---- */
+  #verdict{
+    margin-top:14px;border:1px solid var(--line);padding:16px;
+    font-size:12px;line-height:1.95;color:var(--dim);display:none;
+  }
+  #verdict.on{display:block}
+  #verdict .big{color:var(--hi);font-size:14px;letter-spacing:.1em}
+  #verdict .self{margin-top:10px;color:var(--acc)}
+  #verdict .warn{margin-top:10px;color:var(--warn)}
+
   footer{
     margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
-    color:var(--dim);font-size:11px;line-height:1.9;
+    color:var(--dim);font-size:11px;line-height:1.95;
   }
-  footer a{display:inline;padding:0;color:var(--dim);text-decoration:underline}
-  footer a:hover{background:none;color:var(--fg)}
-  .note{color:var(--warn)}
+  footer b{color:var(--fg);font-weight:400}
+  footer a{color:var(--dim)}
+  .warn{color:var(--warn)}
 </style>
 </head>
 <body>
 <main>
-  <h1>ODDEMON</h1>
-  <p class="sub">四件离线玩具 · 不联网 · 无后端 · 不收集任何数据</p>
+  <h1>总 台</h1>
+  <p class="title-sub">归档协议 · ARCHIVE PROTOCOL · 三份证明互相否定的地方</p>
 
-  <ul>
-    <li>
-      <a href="game/index.html">
-        <span class="row"><span class="idx">01</span><span class="name">羊肠小道 · 否定版</span><span class="tag">打开即玩</span></span>
-        <p class="desc">鼠标控一点走过窄道。撞墙的代价不是重来，是<b>命题被改写一次</b>，然后退回存档点。六道逐道收窄，通关只给一张证明。</p>
-      </a>
-    </li>
-    <li>
-      <a href="proof/index.html">
-        <span class="row"><span class="idx">02</span><span class="name">是 等于 否 · 验算器</span><span class="tag">打开即玩</span></span>
-        <p class="desc">输入一句话，交给否定算子一路推到不动点。同种子必得同结果，<b>可复现、可自证</b>；不会越过不动点继续推。</p>
-      </a>
-    </li>
-    <li>
-      <a href="the-visitor-protocol/index.html">
-        <span class="row"><span class="idx">03</span><span class="name">来访者协议 v1.2</span><span class="tag">打开即玩</span></span>
-        <p class="desc">六道门，每门三个选择。<b>选择只决定否定的形式，不改变否定本身</b>。最后一门把协议自己的断言交出去被否定。</p>
-      </a>
-    </li>
-    <li>
-      <a href="oddemon-typo/README.md">
-        <span class="row"><span class="idx">04</span><span class="name">ODDEMON 艺术字生成器</span><span class="tag">需 Python 3.9+</span></span>
-        <p class="desc">文字 → 艺术字实时生成器。渲染全在浏览器端，Gradio 只起一个本地服务。<b>需要下载后本地运行</b>，网页上跑不起来：见 <code>start.bat</code> / <code>start.sh</code>。</p>
-      </a>
-    </li>
-    <li>
-      <a href="%E5%8F%8D%E6%BC%94%E8%AE%BE%E8%AE%A1%E6%B3%95/%E9%80%9A%E7%94%A8%E8%A7%84%E5%BE%8B%E6%8F%90%E7%A4%BA%E8%AF%8D.md">
-        <span class="row"><span class="idx">05</span><span class="name">反演设计法 · 通用规律提示词</span><span class="tag">只读</span></span>
-        <p class="desc">从以上作品反向推出的一套生成规则，含代码格式规范。<b>喂给模型即可生成同类新玩具。</b></p>
-      </a>
-    </li>
-  </ul>
+  <div class="dedi">
+    总台不生产结论。<b>它只负责发号，然后收下三份互相打架的回执。</b><br>
+    编号与种子同源——编号不是身份，是种子的另一种写法。
+  </div>
+
+  <section>
+    <h2>案 卷</h2>
+    <div class="docket">
+      <span class="case" id="case">—</span>
+      <span class="seed">种子 <b id="seed">—</b></span>
+      <button id="reseed">⟳ 重新编号</button>
+      <button id="copy">⇪ 复制卷宗</button>
+      <button id="clear">✕ 清空卷宗</button>
+    </div>
+    <p class="hint">
+      重新编号会一并清空卷宗：换了案卷编号，旧回执不再配套，总台不替你拼回去。<br>
+      键盘 <b>1</b> <b>2</b> <b>3</b> 可直接进入对应作品。
+    </p>
+  </section>
+
+  <section>
+    <h2>三 件 作 品</h2>
+    <ul id="entries"></ul>
+  </section>
+
+  <section>
+    <h2>卷 宗</h2>
+    <ul id="ledger"></ul>
+    <div id="verdict"></div>
+  </section>
 
   <footer>
-    否定施加于符号，不施加于人。全过程可审计，不掩饰。<br>
-    本页不加载任何外部资源；关闭标签页即销毁全部输入。<br>
-    <span class="note">若感到不适，随时关闭即可——出口常驻，不设埋点。</span><br>
-    源码与运行说明见 <a href="README.md">README.md</a>。
+    <b>已知限制（诚实披露）</b>：卷宗优先写入浏览器本地存储；以 <code>file://</code>
+    直接打开时部分浏览器会禁用本地存储，此时卷宗<b>仅在本次会话内有效</b>，刷新即散——这不是故障，是边界。<br>
+    三件作品均为纯静态单页：无外部资源、无后端、无网络请求、不上传任何数据。<br>
+    <span class="warn">若感到不适，随时关闭即可——出口常驻，不设埋点。</span><br>
+    运行说明与源码见 <a href="README.md">README.md</a>；生成同类玩具的规律见
+    <a href="%E5%8F%8D%E6%BC%94%E8%AE%BE%E8%AE%A1%E6%B3%95/%E9%80%9A%E7%94%A8%E8%A7%84%E5%BE%8B%E6%8F%90%E7%A4%BA%E8%AF%8D.md">反演设计法 · 通用规律提示词</a>。
   </footer>
 </main>
+
+<script>
+/* ==========================================================================
+   总台 · 归档协议
+   --------------------------------------------------------------------------
+   1. 编号与种子同源：CASE = OD-<seed 的 36 进制>，编号不是外部赋予的身份。
+   2. 下发：进入作品时把 #case 与 #seed 塞进链接，作品自己读取并写进证明。
+   3. 回收：作品结束时回传 #rec=项目代号~编号~判词片段，总台只收摘要不收全文。
+   4. 自指：三份齐了才出总判，而总判正文已按本协议第六门处理——不留新终极。
+   ========================================================================== */
+
+/* ---- 1. 声明式作品表：改这张表即可增删作品，不动逻辑 ---- */
+var WORKS = [
+  { id:"G", key:"1", dir:"game", name:"羊肠小道 · 否定版",
+    desc:"鼠标控一点走过窄道。撞墙的代价不是重来，是<b>命题被改写一次</b>并退回存档点。六道逐道收窄，通关只给一张证明。" },
+  { id:"P", key:"2", dir:"proof", name:"是 等于 否 · 验算器",
+    desc:"输入一句话，交给否定算子一路推到不动点。<b>同种子必得同结果</b>，可复现、可自证。" },
+  { id:"V", key:"3", dir:"the-visitor-protocol", name:"来访者协议 v1.2",
+    desc:"六道门，每门三个选择。<b>选择只决定否定的形式，不改变否定本身</b>。最后一门把协议自己的断言交出去被否定。" }
+];
+
+/* ---- 2. 状态 ---- */
+var STORE_KEY = "od_archive_v1";
+var state = { seed:0, recs:{} };
+
+function newSeed(){
+  var n = Math.floor(Math.random() * 99999);
+  return n > 0 ? n : 1;
+}
+function caseOf(seed){
+  return "OD-" + (seed >>> 0).toString(36).toUpperCase();
+}
+
+/* 本地存储能用就用，不能用就只在内存里——不假装能用 */
+function load(){
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return;
+    var o = JSON.parse(raw);
+    if (o && typeof o.seed === "number") { state.seed = o.seed; state.recs = o.recs || {}; }
+  } catch (e) { /* file:// 下可能直接抛错，忽略 */ }
+}
+function save(){
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* 同上 */ }
+}
+
+/* ---- 3. 收档：解析作品回传的 #rec ---- */
+function takeReceipt(){
+  var h = (location.hash || "").replace(/^#/, "");
+  if (!h) return;
+  var p = new URLSearchParams(h);
+  var rec = p.get("rec");
+  if (!rec) return;
+  var parts = rec.split("~");
+  if (parts.length < 3) return;
+  /* 编号不同即视为另一桩案子，旧回执不合并——总台不做拼图 */
+  if (parts[1] && parts[1] !== caseOf(state.seed)) {
+    var n = parseInt(String(parts[1]).replace("OD-", ""), 36);
+    if (n) state.seed = n;
+    state.recs = {};
+  }
+  state.recs[parts[0]] = { case:parts[1], verdict:parts.slice(2).join("~") };
+  save();
+  /* 用完即清，避免刷新重复入档 */
+  try { history.replaceState(null, "", location.pathname + location.search); }
+  catch (e) { location.hash = ""; }
+}
+
+/* ---- 4. 渲染 ---- */
+function $(id){ return document.getElementById(id); }
+function esc(s){
+  return String(s).replace(/[&<>"]/g, function(c){
+    return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c];
+  });
+}
+function linkOf(w){
+  return w.dir + "/index.html#case=" + encodeURIComponent(caseOf(state.seed))
+       + "&seed=" + encodeURIComponent(String(state.seed));
+}
+
+function renderDocket(){
+  $("case").textContent = caseOf(state.seed);
+  $("seed").textContent = String(state.seed);
+}
+
+function renderEntries(){
+  var ul = $("entries");
+  ul.innerHTML = "";
+  WORKS.forEach(function(w){
+    var done = !!state.recs[w.id];
+    var li = document.createElement("li");
+    var a = document.createElement("a");
+    a.className = "entry";
+    a.href = linkOf(w);
+    a.innerHTML =
+      '<span class="row">' +
+        '<span class="key">' + w.key + '</span>' +
+        '<span class="name">' + w.name + '</span>' +
+        '<span class="tag' + (done ? " done" : "") + '">' +
+          (done ? "已归档" : "未归档") + '</span>' +
+      '</span>' +
+      '<p class="desc">' + w.desc + '</p>';
+    ul.appendChild(li).appendChild(a);
+  });
+}
+
+function renderLedger(){
+  var ul = $("ledger");
+  ul.innerHTML = "";
+  var any = false;
+  WORKS.forEach(function(w){
+    var r = state.recs[w.id];
+    if (!r) return;
+    any = true;
+    var li = document.createElement("li");
+    li.innerHTML =
+      '<span class="pj">' + w.name + '</span>' +
+      '<span class="vd">' + esc(r.verdict) + '</span>' +
+      '<span class="cs">' + esc(r.case || "") + '</span>';
+    ul.appendChild(li);
+  });
+  if (!any) {
+    var e = document.createElement("li");
+    e.className = "empty";
+    e.textContent = "尚无卷宗。总台不因空而缺失任何东西，它只是还没有被否定。";
+    ul.appendChild(e);
+  }
+}
+
+function renderVerdict(){
+  var v = $("verdict");
+  var got = WORKS.filter(function(w){ return !!state.recs[w.id]; }).length;
+  if (got === 0) { v.className = ""; v.innerHTML = ""; return; }
+  v.className = "on";
+  if (got < WORKS.length) {
+    v.innerHTML =
+      '<div class="big">卷宗不齐（' + got + '/' + WORKS.length + '）</div>' +
+      '不补齐也是一种结论。总台不代你补齐，也不替你宣称这已经够了。';
+    return;
+  }
+  /* 三份齐：出总判，而总判正文已按第六门处理——本页不留终极 */
+  v.innerHTML =
+    '<div class="big">总判：【已按本协议第六门处理】</div>' +
+    '三份证明指向同一处：没有任何一处。因此总判的正文被交出去否定，' +
+    '你读到的是否定之后的残留，不是结论。<br>' +
+    '编号 ' + esc(caseOf(state.seed)) + ' · 种子 ' + state.seed + ' · 三份回执均已归档。' +
+    '<div class="self">自指条款：本页声称「不生产结论」。这句话同样已被处理。</div>' +
+    '<div class="warn">若你正在把这句话当成结论，那它现在也已被处理。</div>';
+}
+
+function renderAll(){ renderDocket(); renderEntries(); renderLedger(); renderVerdict(); }
+
+/* ---- 5. 动作 ---- */
+$("reseed").onclick = function(){
+  state.seed = newSeed();
+  state.recs = {};
+  save(); renderAll();
+};
+$("clear").onclick = function(){
+  state.recs = {};
+  save(); renderAll();
+};
+$("copy").onclick = function(){
+  var lines = ["总台 · 案卷 " + caseOf(state.seed) + " · 种子 " + state.seed, ""];
+  var any = false;
+  WORKS.forEach(function(w){
+    var r = state.recs[w.id];
+    if (!r) return;
+    any = true;
+    lines.push(w.id + "  " + w.name + "  " + (r.case || "") + "  " + r.verdict);
+  });
+  if (!any) lines.push("（尚无卷宗）");
+  var t = lines.join("\n");
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(t).then(function(){ flash("卷宗已复制"); },
+                                          function(){ fallbackCopy(t); });
+  } else fallbackCopy(t);
+};
+function fallbackCopy(t){
+  var ta = document.createElement("textarea");
+  ta.value = t; document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); flash("卷宗已复制"); }
+  catch (e) { flash("复制失败，请手动选取"); }
+  document.body.removeChild(ta);
+}
+function flash(msg){
+  var b = $("copy"), old = b.textContent;
+  b.textContent = msg;
+  setTimeout(function(){ b.textContent = old; }, 1400);
+}
+
+/* 回执也可能在页面开着的时候才抵达（粘贴链接、另一个标签页回来），
+   所以 hashchange 也要收一次档，否则那份回执会被静默丢弃 */
+window.addEventListener("hashchange", function(){
+  takeReceipt();
+  renderAll();
+});
+
+/* 键盘 1/2/3 直达 */
+document.addEventListener("keydown", function(e){
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  var t = e.target;
+  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+  var w = WORKS.filter(function(x){ return x.key === e.key; })[0];
+  if (w) location.href = linkOf(w);
+});
+
+/* ---- 6. 启动 ---- */
+load();
+if (!state.seed) { state.seed = newSeed(); save(); }
+takeReceipt();
+renderAll();
+</script>
 </body>
 </html>

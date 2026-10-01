@@ -70,6 +70,7 @@
   <span class="chip">用时 <b id="h-time">0.0s</b></span>
   <span class="chip">否定度 <b id="h-neg">0%</b></span>
   <span class="chip" style="border-color:var(--line)">命题 <b id="h-prop"></b></span>
+  <span class="chip" style="border-color:var(--line)">案件 <b id="h-case">—</b></span>
 </div>
 
 <div id="wrap">
@@ -100,7 +101,7 @@
   <div class="ov" id="ov-cert">
     <h2>归 档 证 明</h2>
     <div id="cert"></div>
-    <div class="go"><button id="btn-copy">复制证明</button><button id="btn-again">再走一次</button></div>
+    <div class="go"><button id="btn-copy">复制证明</button><button id="btn-archive">⤤ 归档至总台</button><button id="btn-again">再走一次</button></div>
   </div>
 </div>
 
@@ -338,7 +339,9 @@ function showCert(){
   lines.push("羊肠小道 · 归档证明");
   lines.push("THE NARROW PATH · CERTIFICATE");
   lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  lines.push("案件编号：P-" + Date.now().toString(36).toUpperCase());
+  lines.push("案件编号：" + (ARC.case || ("P-" + Date.now().toString(36).toUpperCase())));
+  lines.push("总台种子：" + (ARC.seed || "—")
+    + "（本作无随机，种子仅用于与总台互认）");
   lines.push("总偏差次数：" + totalHits);
   lines.push("总用时：" + (totalTime/1000).toFixed(1) + " 秒");
   lines.push("");
@@ -542,6 +545,12 @@ cv.addEventListener("mousemove", e => { const p = toCanvas(e); mouse = { x:p.x, 
 cv.addEventListener("mouseleave", () => { mouse.has = false; prev = null; });
 cv.addEventListener("mouseenter", e => { const p = toCanvas(e); mouse = { x:p.x, y:p.y, has:true }; });
 
+/* 触屏：手指即那个点。touchmove 必须 preventDefault，否则页面会跟着滚，
+   那等于在窄道之外又给你加了一层不可控的位移。 */
+cv.addEventListener("touchstart", e => { e.preventDefault(); const p = toCanvas(e.touches[0]); mouse = { x:p.x, y:p.y, has:true }; prev = null; }, { passive:false });
+cv.addEventListener("touchmove",  e => { e.preventDefault(); const p = toCanvas(e.touches[0]); mouse = { x:p.x, y:p.y, has:true }; }, { passive:false });
+cv.addEventListener("touchend",   () => { mouse.has = false; prev = null; });
+
 $("btn-start").onclick = () => { hideAll(); loadLevel(0); };
 $("btn-lv").onclick    = () => { hideAll(); tStart = performance.now(); };
 $("btn-resume").onclick= () => { paused = false; hideAll(); };
@@ -571,6 +580,34 @@ document.addEventListener("keydown", e => {
 /* =========================================================================
    8. 启动
    ========================================================================= */
+/* ==========================================================================
+   归档协议：与总台互认案件编号与种子
+   --------------------------------------------------------------------------
+   总台把 #case 与 #seed 写进链接，本作读出来、写进证明；
+   结束时把一句判词摘要塞回 #rec 交还总台。全程只走 URL，不落任何存储。
+   ========================================================================== */
+var ARC = (function(){
+  var q = new URLSearchParams((location.hash || "").replace(/^#/, ""));
+  return {
+    case: q.get("case") || "",
+    seed: q.get("seed") || "",
+    back: function(proj, verdict){
+      location.href = "../index.html#rec="
+        + encodeURIComponent([proj, this.case || "-", verdict].join("~"));
+    }
+  };
+})();
+
+$("h-case").textContent = ARC.case || "—";
+$("btn-archive").onclick = function(){
+  var per = LEVELS.map(function(L, i){
+    var h = hitsPer[i] || { neg:0 };
+    return skipped[i] ? 1 : (h.neg || 0);
+  });
+  var negAll = Math.round(per.reduce(function(a, b){ return a + b; }, 0) / per.length * 100);
+  ARC.back("G", "偏差 " + totalHits + " · 否定度 " + negAll + "%");
+};
+
 // 测试钩子：仅供 test/smoke.mjs 使用，不参与任何游戏逻辑
 window.__NP__ = {
   LEVELS,

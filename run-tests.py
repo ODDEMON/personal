@@ -16,7 +16,9 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-PROJECTS = ["game", "proof", "the-visitor-protocol", "oddemon-typo"]
+# hub = 总台（入口页），它的冒烟测试不在子目录里，单独指一条路径
+PROJECTS = ["hub", "game", "proof", "the-visitor-protocol", "oddemon-typo"]
+HUB_TEST = os.path.join(ROOT, "test", "hub.mjs")
 
 
 def main():
@@ -44,7 +46,7 @@ def main():
 
     failed = []
     for name in targets:
-        smoke = os.path.join(ROOT, name, "test", "smoke.mjs")
+        smoke = HUB_TEST if name == "hub" else os.path.join(ROOT, name, "test", "smoke.mjs")
         if not os.path.isfile(smoke):
             print("\n==== %s ====" % name)
             print("[!] no smoke test found, skipped")

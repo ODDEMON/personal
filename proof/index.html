@@ -107,6 +107,7 @@
       <button id="reset">↺ 复位</button>
       <button id="calm">☾ 冷静</button>
       <button id="png">⤓ 导出 PNG</button>
+      <button id="btn-archive">⤤ 归档至总台</button>
     </div>
     <div id="stage"></div>
     <div id="verdict"></div>
@@ -363,6 +364,8 @@ function render() {
                : "它已被改写为「" + chain[n].text.slice(0, 40) + "」—— 则「是等于否」成立。")
             + "</div>";
     }
+    html += '<div style="margin-top:8px;color:#6f6d68">案件编号 ' + (ARC.case || "—")
+          + ' · 种子 ' + seed + '（同种子 + 同输入 = 同结果，可自行复算）</div>';
     html += '<br><span style="color:#6f6d68">证明初步完毕，我不会对此进行完善。</span>';
     v.innerHTML = html;
   }
@@ -507,6 +510,31 @@ document.addEventListener("keydown", e => {
   else if (e.key === "s" || e.key === "S") exportPNG();
   else if (e.key === "Escape") { running = false; }     // 停止验算，不销毁状态
 });
+
+/* ==========================================================================
+   归档协议：与总台互认案件编号与种子
+   --------------------------------------------------------------------------
+   总台把 #case 与 #seed 写进链接；种子直接落进种子框，故三件作品可在
+   同一编号下互相复算。结束时把步数与否定度塞回 #rec 交还总台。只走 URL。
+   ========================================================================== */
+var ARC = (function(){
+  var q = new URLSearchParams((location.hash || "").replace(/^#/, ""));
+  return {
+    case: q.get("case") || "",
+    seed: q.get("seed") || "",
+    back: function(proj, verdict){
+      location.href = "../index.html#rec="
+        + encodeURIComponent([proj, this.case || "-", verdict].join("~"));
+    }
+  };
+})();
+if (ARC.seed) $("seed").value = ARC.seed;
+
+$("btn-archive").onclick = function(){
+  var n = chain.length - 1;
+  var neg = ($("m2b").textContent || "0%").trim();
+  ARC.back("P", n > 0 ? (n + " 步 · 否定度 " + neg) : "未验算");
+};
 
 seed = readSeed();
 settle();

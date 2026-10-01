@@ -17,6 +17,26 @@
 "use strict";
 
 /* =========================================================================
+   归档协议：与总台互认案件编号与种子
+   -------------------------------------------------------------------------
+   总台把 #case 与 #seed 写进链接，本作读出来、写进证明；
+   结束时把全称性与完整性塞回 #rec 交还总台。全程只走 URL，不落任何存储。
+   本作的选择分支由输入串的形式属性决定，种子仅用于与总台互认。
+   ========================================================================= */
+const ARC = (function () {
+  const q = new URLSearchParams((location.hash || "").replace(/^#/, ""));
+  return {
+    case: q.get("case") || "",
+    seed: q.get("seed") || "",
+    back(proj, verdict) {
+      location.href = "../index.html#rec="
+        + encodeURIComponent([proj, this.case || "-", verdict].join("~"));
+    }
+  };
+})();
+root.ARC = ARC;
+
+/* =========================================================================
    声明式表：改数据不改代码
    ========================================================================= */
 
@@ -375,7 +395,8 @@ function buildCertificate(input, log) {
     "来访者协议 · 归档证明",
     "THE VISITOR PROTOCOL · CERTIFICATE",
     "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-    "案件编号：V-" + Date.now().toString(36).toUpperCase(),
+    "案件编号：" + (ARC.case || ("V-" + Date.now().toString(36).toUpperCase())),
+    "总台种子：" + (ARC.seed || "—") + "　（本作分支由输入串的形式属性决定，种子仅用于互认）",
     "献词原句：" + input,
     "最终形态：" + (f.metrics.integrity === 0 ? "（空无）" : f.text.split("\n")[0]),
     "",
@@ -400,7 +421,7 @@ function buildCertificate(input, log) {
 
 root.VisitorProtocol = {
   GATES, QUANT, VALUES, ANTI, DECOR,
-  SELF_THEOREM,
+  SELF_THEOREM, ARC,
   hash, entropy, integrity, universality,
   finalState, buildCertificate
 };

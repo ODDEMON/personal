@@ -85,6 +85,7 @@
   <div id="cert-box"></div>
   <div id="cert-actions">
     <button class="btn primary" id="copy-cert">复制到剪贴板</button>
+    <button class="btn" id="archive-cert">⤤ 归档至总台</button>
     <button class="btn" id="close-cert">关闭</button>
   </div>
 </div>
@@ -104,7 +105,7 @@ let log = [];
 let selectedChoice = null;
 
 function init() {
-  caseId = 'V-' + Date.now().toString(36).toUpperCase();
+  caseId = (window.ARC && ARC.case) || ('V-' + Date.now().toString(36).toUpperCase());
   $('case-id').textContent = caseId;
   $('gate-label').textContent = '入口';
 
@@ -114,7 +115,16 @@ function init() {
   $('cert-btn').addEventListener('click', showCert);
   $('reset-btn').addEventListener('click', resetAll);
   $('copy-cert').addEventListener('click', copyCert);
+  $('archive-cert').addEventListener('click', archiveCert);
   $('close-cert').addEventListener('click', () => $('cert-overlay').classList.remove('on'));
+
+  function archiveCert() {
+    if (!log.length) { ARC.back('V', '未走完（未进入协议）'); return; }
+    const f = finalState(input, log);
+    ARC.back('V', '全称性 ' + f.metrics.universality
+      + ' · 完整性 ' + (f.metrics.integrity * 100).toFixed(0) + '%'
+      + ' · ' + log.length + ' 步');
+  }
 
   document.addEventListener('keydown', e => {
     if (/INPUT|TEXTAREA/.test(e.target.tagName)) return;
@@ -129,7 +139,7 @@ function begin() {
   log = [];
   gateIndex = -1;
   selectedChoice = null;
-  caseId = 'V-' + Date.now().toString(36).toUpperCase();
+  caseId = (window.ARC && ARC.case) || ('V-' + Date.now().toString(36).toUpperCase());
   $('case-id').textContent = caseId;
   $('log').innerHTML = '';
   show('gate');
