@@ -127,6 +127,26 @@ const REC_G = "G~OD-ABC~偏差 3 · 否定度 50%";
 
   ok("收档全程无运行时错误", errs.length === 0, errs[0] || "");
 }
+/* ---- 4. 协议之外：介绍照给，但不发号、不收档 ---- */
+{
+  const { w, errs } = open();
+  await sleep(120);
+  const out = w.document.getElementById("outside");
+  const txt = out ? out.textContent : "";
+
+  ok("协议之外区块存在", !!out);
+  ok("介绍了 oddemon-typo", /ODDEMON 艺术字生成器/.test(txt));
+  ok("标为不在协议内", /不在协议内/.test(txt));
+
+  const hrefs = out ? [...out.querySelectorAll("a")].map(a => a.getAttribute("href")) : [];
+  ok("给出 README 引用", hrefs.some(h => h === "oddemon-typo/README.md"), hrefs.join(" "));
+  ok("给出本地服务地址", hrefs.some(h => h.indexOf("127.0.0.1:7860") >= 0));
+
+  // 关键：它不能被当成第四份证明——否则「三份齐」的含义会被悄悄改写
+  ok("不进作品表（拿不到编号）", w.document.querySelectorAll("a.entry").length === 3,
+    String(w.document.querySelectorAll("a.entry").length));
+  ok("协议之外无运行时错误", errs.length === 0, errs[0] || "");
+}
 void REC_G;
 
 console.log("\n结果：" + pass + " 通过 / " + fail + " 失败");

@@ -26,6 +26,8 @@
 
 键盘 `1` `2` `3` 可直达三件作品。
 
+**协议之外**另有一栏：`oddemon-typo`。介绍与引用照给，但**不发号、不收档**——它跑在一个本地服务里，本页递不到编号。总台只收能在同一编号下互相复算的证明，这不是把谁排除在外，是一条边界，写在界面上而不是藏在代码里。
+
 ## 二、三个纯静态作品：下载后直接打开
 
 `game/`、`proof/`、`the-visitor-protocol/` 三个作品**不需要任何安装**：
@@ -81,7 +83,7 @@ npm test           # 总台 + 四个作品全跑
 python run-tests.py hub     # 或只跑其中一个（hub / game / proof / …）
 ```
 
-当前：总台 26 · game 27 · proof 18 · visitor 259 · typo 全套，共 358 项断言全绿。
+当前：总台 33 · game 27 · proof 18 · visitor 259 · typo 全套，共 365 项断言全绿。
 
 jsdom 跑在仓库根目录的 `node_modules/`，各项目的 `test/smoke.mjs` 用 `createRequire(import.meta.url)` 向上查找，不依赖任何绝对路径——换机器照样通过。
 

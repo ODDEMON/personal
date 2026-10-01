@@ -67,6 +67,10 @@
   .tag.done{color:var(--acc);border-color:#332a4d}
   .desc{color:var(--dim);font-size:12px;margin:6px 0 0 26px;max-width:54ch}
   .desc b{color:var(--fg);font-weight:400}
+  .entry-static{display:block;padding:16px 2px}
+  .links{margin-top:8px}
+  .links a{color:var(--acc);text-decoration:none;border-bottom:1px solid #332a4d}
+  .links a:hover{color:var(--hi)}
 
   /* ---- 卷宗 ---- */
   #ledger{margin:0;padding:0;list-style:none;font-size:12px}
@@ -130,6 +134,15 @@
   </section>
 
   <section>
+    <h2>协 议 之 外</h2>
+    <ul id="outside"></ul>
+    <p class="hint">
+      它拿不到编号。编号靠 URL 下发，而它跑在一个本地服务里，不是这个页面递得到的地方。<br>
+      总台只收能在同一编号下互相复算的证明——<b>这不是把谁排除在外，这是一条边界</b>，写在这里。
+    </p>
+  </section>
+
+  <section>
     <h2>卷 宗</h2>
     <ul id="ledger"></ul>
     <div id="verdict"></div>
@@ -163,6 +176,20 @@ var WORKS = [
     desc:"输入一句话，交给否定算子一路推到不动点。<b>同种子必得同结果</b>，可复现、可自证。" },
   { id:"V", key:"3", dir:"the-visitor-protocol", name:"来访者协议 v1.2",
     desc:"六道门，每门三个选择。<b>选择只决定否定的形式，不改变否定本身</b>。最后一门把协议自己的断言交出去被否定。" }
+];
+
+/* 协议之外的作品：介绍与引用照给，但不发号、不收档。
+   它跑在一个本地服务里，本页递不到编号——这条边界写在界面上，不藏在代码里。 */
+var OUTSIDE = [
+  { path:"oddemon-typo", name:"ODDEMON 艺术字生成器",
+    desc:"文字 → 艺术字实时生成器：58 项参数 / 15 套预设 / 五语言界面。"
+       + "<b>渲染全部在浏览器端完成</b>，Gradio 只负责起一个本地服务。"
+       + "这是本仓库唯一需要装环境的作品（Python 3.10+ 与 gradio）。",
+    links:[
+      ["oddemon-typo/README.md", "怎么跑（README）"],
+      ["http://127.0.0.1:7860/", "若已在本机启动"],
+      ["oddemon-typo/README_EN.md", "English"]
+    ] }
 ];
 
 /* ---- 2. 状态 ---- */
@@ -250,6 +277,28 @@ function renderEntries(){
   });
 }
 
+function renderOutside(){
+  var ul = $("outside");
+  ul.innerHTML = "";
+  OUTSIDE.forEach(function(w){
+    var li = document.createElement("li");
+    var links = w.links.map(function(l){
+      return '<a href="' + l[0] + '">' + l[1] + '</a>';
+    }).join('　·　');
+    li.innerHTML =
+      '<div class="entry-static">' +
+        '<span class="row">' +
+          '<span class="key">—</span>' +
+          '<span class="name">' + w.name + '</span>' +
+          '<span class="tag">不在协议内</span>' +
+        '</span>' +
+        '<p class="desc">' + w.desc + '</p>' +
+        '<p class="desc links">' + links + '</p>' +
+      '</div>';
+    ul.appendChild(li);
+  });
+}
+
 function renderLedger(){
   var ul = $("ledger");
   ul.innerHTML = "";
@@ -294,7 +343,7 @@ function renderVerdict(){
     '<div class="warn">若你正在把这句话当成结论，那它现在也已被处理。</div>';
 }
 
-function renderAll(){ renderDocket(); renderEntries(); renderLedger(); renderVerdict(); }
+function renderAll(){ renderDocket(); renderEntries(); renderOutside(); renderLedger(); renderVerdict(); }
 
 /* ---- 5. 动作 ---- */
 $("reseed").onclick = function(){

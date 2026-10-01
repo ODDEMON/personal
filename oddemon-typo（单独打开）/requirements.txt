@@ -1,4 +1,0 @@
-# ODDEMON TYPOGRAPHY GENERATOR
-# 唯一的第三方依赖。渲染全在浏览器端完成，Gradio 只负责起一个本地服务。
-# 实测版本：6.27.0（Python 3.13）
-gradio>=6,<7
