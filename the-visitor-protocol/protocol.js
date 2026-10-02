@@ -79,9 +79,9 @@ const ENDINGS = [
   "醒醒！现在明明无事发生啊。"
 ];
 
-// 本协议自身的断言。最后一门会把它交出去，让它也被否定。
-const SELF_THEOREM = "在语言体系内，没有任何价值占据终极位置。";
-const SELF_THEOREM_EN = "NO VALUE OCCUPIES THE TERMINAL POSITION.";
+// 本协议自身的断言。最后一门会把它交出去，让它也走一遍同样的程序。
+const SELF_THEOREM = "在语言体系内，终极这一位置始终等待着意义来填。";
+const SELF_THEOREM_EN = "THE TERMINAL POSITION STANDS EMPTY.";
 
 /* =========================================================================
    工具
@@ -156,7 +156,7 @@ function antiReplace(s, seed) {
   for (const [a, b] of pairs) {
     if (s.includes(a)) return { text: s.replace(a, b), note: "反义替换：" + a + " → " + b };
   }
-  return { text: s, note: "未发现可替换项" };
+  return { text: s, note: "此项留在原地：清单里的对子都对不上号。" };
 }
 
 function shuffle(s, seed) {
@@ -185,7 +185,7 @@ const GATES = [
         op: (s) => {
           // 跑两遍：第一遍的替换产物里若残留量词，第二遍清掉
           const t = replaceAll(replaceAll(s, QUANT), QUANT);
-          return { text: t, note: t === s ? "串内没有全称词——它本就不曾宣称普遍。" : "全称词被替换为各自的对应否定。全称性下降。" };
+          return { text: t, note: t === s ? "串内全称词缺席——它走的是别的一条路，与宣称普遍是两回事。" : "全称词被替换为各自的对应否定。全称性下降。" };
         }
       },
       {
@@ -195,7 +195,7 @@ const GATES = [
           QUANT.forEach(([a]) => {
             if (out.includes(a)) { out = out.split(a).join("【" + a + "】"); n++; }
           });
-          return { text: out, note: `标出 ${n} 个全称词。它们是可数的——可数之物不可能是终极。` };
+          return { text: out, note: `标出 ${n} 个全称词。它们是可数的——凡可数者，皆远离终极。` };
         }
       },
       {
@@ -213,7 +213,7 @@ const GATES = [
     id: "name",
     name: "常名 · NAME",
     prompt: "为这些价值重新命名。",
-    theorem: "名可名，恒名曰自。所谓普世之名，只是某一字符集里的一个字符串；它没有跨语言的存在。",
+    theorem: "名可名，恒名曰自。所谓普世之名，只是某一字符集里的一个字符串；它的身体随语言更换。",
     choices: [
       {
         id: "split", label: "拆名",
@@ -230,7 +230,7 @@ const GATES = [
         id: "codepoint", label: "码位",
         op: (s) => {
           const t = toCodepoints(s, 26);
-          return { text: t, note: "名字被还原为码位。它在不同语言里没有同一个身体，只有同一个编号。" };
+          return { text: t, note: "名字被还原为码位。它在不同语言里换着身体住，编号是唯一留下来的东西。" };
         }
       },
       {
@@ -240,7 +240,7 @@ const GATES = [
           VALUES.forEach(v => {
             if (out.includes(v)) { n++; out = out.split(v).join("第" + n + "号价值"); }
           });
-          return { text: out, note: n ? `${n} 个价值词被替换为编号。编号不声称意义，因此也不声称普遍。` : "串内没有价值词可去名。" };
+          return { text: out, note: n ? `${n} 个价值词被替换为编号。编号只登记位置，意义与普遍都不在它的职责里。` : "串内价值词缺席，去名这一手悬着。" };
         }
       }
     ]
@@ -254,7 +254,7 @@ const GATES = [
     choices: [
       {
         id: "yes2no", label: "是为否",
-        op: (s) => ({ text: s.split("是").join("否"), note: "「是」被写成「否」。若二者可互换，「是」不可能是终极。" })
+        op: (s) => ({ text: s.split("是").join("否"), note: "「是」被写成「否」。若二者可互换，「是」与终极之间就隔了一层。" })
       },
       {
         id: "default", label: "标注默认",
@@ -265,7 +265,7 @@ const GATES = [
         op: (s, ctx) => {
           const r = rng(ctx.seed);
           const t = s + pick(REFUSAL, r);
-          return { text: t, note: "拒绝被追加。拒绝对默认是否定，不是肯定——它不建立新的终极。" };
+          return { text: t, note: "拒绝被追加。拒绝对默认落在否定那一极——旧的被取消，新的由它替不出来。" };
         }
       }
     ]
@@ -275,7 +275,7 @@ const GATES = [
     id: "default",
     name: "默认 · DEFAULT",
     prompt: "它凭什么是默认的？",
-    theorem: "默认不是经过选择的，因此它没有资格声称必然。任何默认都可以被重新设为非默认。",
+    theorem: "默认之所以为默认，正因为它绕开了选择这一关，必然这一说法在此缺少落点。任何默认都可以被重新设为非默认。",
     choices: [
       {
         id: "reset", label: "重设",
@@ -288,14 +288,14 @@ const GATES = [
         id: "deprive", label: "抽掉系词",
         op: (s) => {
           const t = s.replace(/[是为乃即系]/g, "");
-          return { text: t.length ? t : "（无系词可抽）", note: "系词被抽掉。失去系词的命题不再宣称什么。" };
+          return { text: t.length ? t : "（系词本就缺席）", note: "系词被抽掉。命题丢了系词，宣称这回事随之落空。" };
         }
       },
       {
         id: "mark", label: "逐字标注",
         op: (s) => {
-          const t = chars(s).map(c => c.trim() ? c + "（未选择）" : c).join("");
-          return { text: clamp(t, 240), note: "每个字都被标注为未经选择。未经选择者不具终极性。" };
+          const t = chars(s).map(c => c.trim() ? c + "（留白）" : c).join("");
+          return { text: clamp(t, 240), note: "每个字都被标注为留白。留白者与终极之间隔着一层。" };
         }
       }
     ]
@@ -305,11 +305,11 @@ const GATES = [
     id: "refuse",
     name: "拒绝 · REFUSE",
     prompt: "你拒绝哪一层的默认？",
-    theorem: "拒绝对默认是否定，不是肯定。拒绝不建立新的终极，它只取消旧的。",
+    theorem: "拒绝对默认落在否定那一侧。它取消旧的终极，新的那一份替不出来——拒绝只做取消这一件事。",
     choices: [
       {
         id: "syntax", label: "拒绝句法",
-        op: (s, ctx) => ({ text: shuffle(s, ctx.seed), note: "字符顺序被打乱。句法被拒绝后，命题不再成立。" })
+        op: (s, ctx) => ({ text: shuffle(s, ctx.seed), note: "字符顺序被打乱。句法被拒绝后，命题就此散架。" })
       },
       {
         id: "lexis", label: "拒绝词汇",
@@ -326,7 +326,7 @@ const GATES = [
     id: "self",
     name: "自指 · SELF",
     prompt: "本协议自身的断言，是否也适用于本协议？",
-    theorem: "若「没有任何价值占据终极位置」为真，则该断言自身也不占据终极位置。回归这一问题本身，等同于对自指的自指。",
+    theorem: "若「终极这一位置始终空着」为真，则该断言自己也落进同一种空。回到这一问题本身，等于对自指再自指一次。",
     choices: [
       {
         id: "apply", label: "施于自身",
@@ -342,14 +342,14 @@ const GATES = [
         id: "suspend", label: "悬置",
         op: (s) => ({
           text: clamp(s + "　‖　（" + SELF_THEOREM_EN + "）", 300),
-          note: "定理被括起并标注为待定。悬置不是否认，是拒绝让它落地为新的终极。"
+          note: "定理被括起并标注为待定。悬置与否认隔着一层：它拒绝让定理落地成为新的终极。"
         })
       },
       {
         id: "recurse", label: "递归嵌入",
         op: (s) => ({
           text: clamp(s.slice(0, 120) + "（" + s.slice(0, 60) + "（" + SELF_THEOREM + "）" + "）", 300),
-          note: "当前文本被嵌入自身，定理置于最内层。递归不收敛，因此无终点可占据。"
+          note: "当前文本被嵌入自身，定理置于最内层。递归一路向下，终点这一站始终排不上日程。"
         })
       }
     ]
@@ -370,11 +370,11 @@ function finalState(input, log) {
 
   let verdict;
   if (uni === 0 && int === 0) {
-    verdict = "全称性归零，完整性归零。没有任何价值占据终极位置——包括本句。";
+    verdict = "全称性归零，完整性归零。终极那一把椅子始终空着——连同本句在内。";
   } else if (uni === 0) {
-    verdict = "全称性归零。串内已无宣称普遍有效的词，但形式尚有残留。";
+    verdict = "全称性归零。串内宣称普遍有效的词已经散尽，形式尚有残留。";
   } else {
-    verdict = `全称性尚余 ${uni}。否定未完成，仍有词在宣称普遍。`;
+    verdict = `全称性尚余 ${uni}。否定还在路上，仍有词在宣称普遍。`;
   }
 
   return {
@@ -398,7 +398,7 @@ function buildCertificate(input, log) {
     "案件编号：" + (ARC.case || ("V-" + Date.now().toString(36).toUpperCase())),
     "总台种子：" + (ARC.seed || "—") + "　（本作分支由输入串的形式属性决定，种子仅用于互认）",
     "献词原句：" + input,
-    "最终形态：" + (f.metrics.integrity === 0 ? "（空无）" : f.text.split("\n")[0]),
+    "最终形态：" + (f.metrics.integrity === 0 ? "（留白）" : f.text.split("\n")[0]),
     "",
     "全称性：" + f.metrics.universality + "　（串内剩余宣称普遍有效的词数）",
     "完整性：" + (f.metrics.integrity * 100).toFixed(1) + "%",
@@ -411,8 +411,11 @@ function buildCertificate(input, log) {
     lines.push(`${i + 1}. ${e.gateName} · ${e.choiceLabel} → ${e.note}`);
   });
   lines.push("");
+  lines.push("声轨层：" + (root.OdBgm ? root.OdBgm.peek().title : "—")
+    + " · 全程在场，另行记账。");
+  lines.push("");
   lines.push("自指条款：本协议自身的断言已被本协议否定。");
-  lines.push("　　　　　若它未被否定，则本协议只是换了一个新终极。");
+  lines.push("　　　　　若这句断言安然走完全程，本协议只是换了一把新椅子。");
   lines.push("");
   lines.push("说明：本证明仅在当前浏览器窗口内有效。关闭标签页即销毁。");
   lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");

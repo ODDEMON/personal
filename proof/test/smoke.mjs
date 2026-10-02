@@ -68,6 +68,10 @@ async function waitVerdict(doc, ms = 12000) {
   ok("页面载入无错误", errs.length === 0, errs.join(" | "));
   ok("初始仅一行（原命题）", doc.querySelectorAll("#stage .step").length === 1);
 
+  console.log("\n=== 声轨层（只在形式层，不进判据）===");
+  ok("声轨层已挂载", !!doc.querySelector("#bgm .od-bgm"));
+  ok("默认是关的（不自动出声）", !!dom.window.OdBgm && dom.window.OdBgm.peek().on === false);
+
   console.log("\n=== 确定性：同种子同结果 ===");
   doc.getElementById("seed").value = "42";
   doc.getElementById("seed").dispatchEvent(new dom.window.Event("change"));
@@ -113,6 +117,9 @@ async function waitVerdict(doc, ms = 12000) {
   ok("自指后输入为公理", doc.getElementById("in").value === "是等于否");
   ok("自指后链路已推进", doc.querySelectorAll("#stage .step").length > 1);
   ok("判词含自指条款", doc.getElementById("verdict").innerHTML.includes("自指条款"));
+  ok("判词含声轨行且注明另行记账",
+    doc.getElementById("verdict").innerHTML.includes("声轨层：")
+    && doc.getElementById("verdict").innerHTML.includes("另行记账"));
 
   console.log("\n=== 冷静模式 ===");
   doc.getElementById("calm").click();
@@ -122,8 +129,15 @@ async function waitVerdict(doc, ms = 12000) {
   // 冷静模式关的是视觉降级，不该连算子输出一起关掉
   const withGlyph = chainTexts(doc).some(t => /[ヲミヶˇ∅]/.test(t));
   ok("冷静模式下乱码替换已关闭", !withGlyph);
+  // 冷静模式对声音只做一件事：压音量上限。它不关声，也不改判据
+  ok("冷静模式联动声轨（只压音量上限）",
+    dom.window.OdBgm.peek().vol <= dom.window.OdBgm.SOFTCAP.vol + 1e-9,
+    String(dom.window.OdBgm.peek().vol));
   doc.getElementById("calm").click();
   await sleep(30);
+  ok("解除冷静后音量上限恢复",
+    dom.window.OdBgm.peek().vol > dom.window.OdBgm.SOFTCAP.vol,
+    String(dom.window.OdBgm.peek().vol));
 
   console.log("\n=== 边界输入 ===");
   const inputs = ["", "　", "a", "是", "x".repeat(400), "感动是有意义的 and IS EQUAL TO NOT"];

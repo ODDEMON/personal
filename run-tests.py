@@ -17,7 +17,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 # hub = 总台（入口页），它的冒烟测试不在子目录里，单独指一条路径
-PROJECTS = ["hub", "game", "proof", "the-visitor-protocol", "oddemon-typo"]
+PROJECTS = ["hub", "game", "proof", "the-visitor-protocol", "bgm", "oddemon-typo"]
 HUB_TEST = os.path.join(ROOT, "test", "hub.mjs")
 
 

@@ -77,6 +77,10 @@ function move(doc, win, x, y) {
   ok("测试钩子已暴露", !!window.__NP__);
   ok("六道已定义", window.__NP__.LEVELS.length === 6);
 
+  console.log("\n=== 声轨层（只在形式层，不进判据）===");
+  ok("声轨层已挂载", !!doc.querySelector("#bgm .od-bgm"));
+  ok("默认是关的（不自动出声）", !!window.OdBgm && window.OdBgm.peek().on === false);
+
   console.log("\n=== 几何：每一道都可用 ===");
   let geoBad = null;
   for (let i = 0; i < 6; i++) {
@@ -165,6 +169,8 @@ function move(doc, win, x, y) {
     "实际 " + (cert.match(/^\d+\. /gm) || []).length);
   ok("证明含自指条款", cert.includes("自指条款"));
   ok("证明标注已跳过", cert.includes("已跳过"));
+  // 声轨只在形式层：它出现在证明里，且出现的目的就是声明自己没有被计入
+  ok("证明含声轨行且注明另行记账", cert.includes("声轨层：") && cert.includes("另行记账"));
 
   ok("全程无运行时错误", errs.length === 0, errs.join(" | "));
 

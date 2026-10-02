@@ -6,8 +6,20 @@
 <title>总台 · 归档协议</title>
 <style>
   :root{
-    --bg:#0a0a0b; --fg:#c9c9cf; --dim:#5a5a63; --line:#1c1c20;
-    --hi:#d8d8de; --acc:#8f7ad6; --warn:#8a6a3a;
+    /* 四档亮度：细节请看 README「可读性」一节。
+       这些值按 WCAG AA 校准过（正文 ≥ 4.5:1，次级文字 ≥ 6:1），
+       底色仍是夜色，亮的是字——改暗请连带校准对比度。 */
+    --bg:#0a0a0b;
+    --hi:#f5f5fa;        /* 标题与作品名 */
+    --fg:#e2e2ea;        /* 正文 */
+    --dim:#a9a9b6;       /* 次级说明 · 对底色约 8.5:1 */
+    --dim2:#cbcbd5;      /* 小结标题 */
+    --line:#2a2a31;
+    --btn:#191920;
+    --hi-bg:#1b1b22;     /* hover 底色 */
+    --acc:#b9a7ff;
+    --acc-line:#4a3d70;
+    --warn:#dcab5c;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
@@ -24,11 +36,11 @@
     margin:22px 0 0;padding:14px 16px;border-left:2px solid var(--acc);
     color:var(--dim);font-size:12px;line-height:1.9;
   }
-  .dedi b{color:var(--fg);font-weight:400}
+  .dedi b{color:var(--hi);font-weight:400}
 
   section{margin-top:34px}
   h2{
-    font-size:11px;font-weight:400;letter-spacing:.24em;color:var(--dim);
+    font-size:11px;font-weight:400;letter-spacing:.24em;color:var(--dim2);
     margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line);
   }
 
@@ -41,12 +53,14 @@
   .seed{color:var(--dim);font-size:12px}
   .seed b{color:var(--fg);font-weight:400}
   button{
-    font:inherit;font-size:12px;color:var(--fg);background:#101014;
+    font:inherit;font-size:12px;color:var(--fg);background:var(--btn);
     border:1px solid var(--line);padding:6px 12px;cursor:pointer;
     letter-spacing:.06em;transition:.15s;
   }
   button:hover{color:var(--hi);border-color:var(--acc)}
   .hint{color:var(--dim);font-size:11px;margin:10px 0 0;line-height:1.8}
+  .hint a{color:var(--acc);text-decoration:none;border-bottom:1px solid var(--acc-line)}
+  .hint a:hover{color:var(--hi)}
 
   /* ---- 入口 ---- */
   ul{list-style:none;margin:0;padding:0}
@@ -56,7 +70,7 @@
     display:block;padding:16px 2px;text-decoration:none;color:var(--fg);
     transition:background .15s;
   }
-  a.entry:hover,a.entry:focus{background:#101014;outline:none}
+  a.entry:hover,a.entry:focus{background:var(--hi-bg);outline:none}
   .row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
   .key{color:var(--dim);font-size:11px;min-width:16px}
   .name{color:var(--hi);letter-spacing:.04em}
@@ -64,12 +78,12 @@
     font-size:10px;letter-spacing:.1em;color:var(--dim);
     border:1px solid var(--line);padding:1px 6px;margin-left:auto;white-space:nowrap;
   }
-  .tag.done{color:var(--acc);border-color:#332a4d}
+  .tag.done{color:var(--acc);border-color:var(--acc-line)}
   .desc{color:var(--dim);font-size:12px;margin:6px 0 0 26px;max-width:54ch}
   .desc b{color:var(--fg);font-weight:400}
   .entry-static{display:block;padding:16px 2px}
   .links{margin-top:8px}
-  .links a{color:var(--acc);text-decoration:none;border-bottom:1px solid #332a4d}
+  .links a{color:var(--acc);text-decoration:none;border-bottom:1px solid var(--acc-line)}
   .links a:hover{color:var(--hi)}
 
   /* ---- 卷宗 ---- */
@@ -98,8 +112,8 @@
     margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
     color:var(--dim);font-size:11px;line-height:1.95;
   }
-  footer b{color:var(--fg);font-weight:400}
-  footer a{color:var(--dim)}
+  footer b{color:var(--hi);font-weight:400}
+  footer a{color:var(--dim2)}
   .warn{color:var(--warn)}
 </style>
 </head>
@@ -109,8 +123,8 @@
   <p class="title-sub">归档协议 · ARCHIVE PROTOCOL · 三份证明互相否定的地方</p>
 
   <div class="dedi">
-    总台不生产结论。<b>它只负责发号，然后收下三份互相打架的回执。</b><br>
-    编号与种子同源——编号不是身份，是种子的另一种写法。
+    总台只做两件事：发号，然后收下三份互相打架的回执。<b>结论由它们自己去争。</b><br>
+    编号与种子同源——编号是种子的另一种写法，身份那一层留白。
   </div>
 
   <section>
@@ -123,7 +137,7 @@
       <button id="clear">✕ 清空卷宗</button>
     </div>
     <p class="hint">
-      重新编号会一并清空卷宗：换了案卷编号，旧回执不再配套，总台不替你拼回去。<br>
+      重新编号会一并清空卷宗：换了案卷编号，旧回执就属于另一桩案子了，拼图这件事留给读者。<br>
       键盘 <b>1</b> <b>2</b> <b>3</b> 可直接进入对应作品。
     </p>
   </section>
@@ -137,8 +151,22 @@
     <h2>协 议 之 外</h2>
     <ul id="outside"></ul>
     <p class="hint">
-      它拿不到编号。编号靠 URL 下发，而它跑在一个本地服务里，不是这个页面递得到的地方。<br>
-      总台只收能在同一编号下互相复算的证明——<b>这不是把谁排除在外，这是一条边界</b>，写在这里。
+      它拿不到编号：编号靠 URL 下发，而它跑在一个本地服务里，这一页探过去的手够长，也够不着。<br>
+      总台只收能在同一编号下互相复算的证明——<b>这是一条边界</b>，写在这里，谁都能读到。
+    </p>
+  </section>
+
+  <section>
+    <h2>声 轨 · 形 式 层</h2>
+    <div id="bgm-hub"></div>
+    <p class="hint">
+      声音<b>起于静默位</b>，出声之后只在形式层活动：<b>判据之外，任何一份证明的行间也照不到它</b>。
+      同种子、同输入，出声与否，得到的证明逐字相同——这一点可以验算。<br>
+      配对是 <b>弱→肯定 · 强→否定 · 对称→允许 · 重复→拒绝</b>（《一种理解一切的方法》坐标系的上、下、左、右四极），
+      与意识的是、否、拒绝、默认同构。两组都只是排布，所以否定算子取消得了意义，
+      落在形式上却找不到着力点——<b>这是它与否定性事物同处的全部理由：二者分处两层。</b>
+      ——配对<b>当心读反</b>：读反之后整套同构照样自洽，那是它危险的地方。<br>
+      曲库留在协议之外：它不发号，也不收档。完整说明见 <a href="bgm/声轨层.md">bgm/声轨层.md</a>。
     </p>
   </section>
 
@@ -150,14 +178,17 @@
 
   <footer>
     <b>已知限制（诚实披露）</b>：卷宗优先写入浏览器本地存储；以 <code>file://</code>
-    直接打开时部分浏览器会禁用本地存储，此时卷宗<b>仅在本次会话内有效</b>，刷新即散——这不是故障，是边界。<br>
-    三件作品均为纯静态单页：无外部资源、无后端、无网络请求、不上传任何数据。<br>
-    <span class="warn">若感到不适，随时关闭即可——出口常驻，不设埋点。</span><br>
+    直接打开时，部分浏览器会把本地存储收走，此时卷宗<b>只在本次会话里停留</b>，刷新即散——这是边界，写在明处。<br>
+    三件作品皆为纯静态单页：外部资源、后端、网络请求一概缺席，数据留在你的窗口里。<br>
+    声轨层（<code>bgm/</code>）起于静默位，出声之后仍在判定之外；音频文件位于仓库根目录，
+    <b>单独拷走某一件作品时会丢声轨</b>——届时曲目区留白，留给下行的一句话自己去说。<br>
+    <span class="warn">若感到不适，随时合上页面即可——出口常驻，沿途留白。</span><br>
     运行说明与源码见 <a href="README.md">README.md</a>；生成同类玩具的规律见
     <a href="%E5%8F%8D%E6%BC%94%E8%AE%BE%E8%AE%A1%E6%B3%95/%E9%80%9A%E7%94%A8%E8%A7%84%E5%BE%8B%E6%8F%90%E7%A4%BA%E8%AF%8D.md">反演设计法 · 通用规律提示词</a>。
   </footer>
 </main>
 
+<script src="bgm/bgm.js"></script>
 <script>
 /* ==========================================================================
    总台 · 归档协议
@@ -171,15 +202,15 @@
 /* ---- 1. 声明式作品表：改这张表即可增删作品，不动逻辑 ---- */
 var WORKS = [
   { id:"G", key:"1", dir:"game", name:"羊肠小道 · 否定版",
-    desc:"鼠标控一点走过窄道。撞墙的代价不是重来，是<b>命题被改写一次</b>并退回存档点。六道逐道收窄，通关只给一张证明。" },
+    desc:"鼠标控一点走过窄道。擦壁的代价是一次改写：<b>命题被施加否定算子</b>，然后退回存档点。六道逐道收窄，走到终点只领一张证明。" },
   { id:"P", key:"2", dir:"proof", name:"是 等于 否 · 验算器",
     desc:"输入一句话，交给否定算子一路推到不动点。<b>同种子必得同结果</b>，可复现、可自证。" },
   { id:"V", key:"3", dir:"the-visitor-protocol", name:"来访者协议 v1.2",
-    desc:"六道门，每门三个选择。<b>选择只决定否定的形式，不改变否定本身</b>。最后一门把协议自己的断言交出去被否定。" }
+    desc:"六道门，每门三个选择。<b>选择只定下否定的形式</b>，否定本身留在原处。最后一门把协议自己的断言交出去。" }
 ];
 
-/* 协议之外的作品：介绍与引用照给，但不发号、不收档。
-   它跑在一个本地服务里，本页递不到编号——这条边界写在界面上，不藏在代码里。 */
+/* 协议之外的作品：介绍与引用照给，只是不发号、也不收档。
+   它跑在一个本地服务里，本页递不到编号——这条边界写在界面上，留在明处。 */
 var OUTSIDE = [
   { path:"oddemon-typo", name:"ODDEMON 艺术字生成器",
     desc:"文字 → 艺术字实时生成器：58 项参数 / 15 套预设 / 五语言界面。"
@@ -270,7 +301,7 @@ function renderEntries(){
         '<span class="key">' + w.key + '</span>' +
         '<span class="name">' + w.name + '</span>' +
         '<span class="tag' + (done ? " done" : "") + '">' +
-          (done ? "已归档" : "未归档") + '</span>' +
+          (done ? "已归档" : "待归档") + '</span>' +
       '</span>' +
       '<p class="desc">' + w.desc + '</p>';
     ul.appendChild(li).appendChild(a);
@@ -317,7 +348,7 @@ function renderLedger(){
   if (!any) {
     var e = document.createElement("li");
     e.className = "empty";
-    e.textContent = "尚无卷宗。总台不因空而缺失任何东西，它只是还没有被否定。";
+    e.textContent = "卷宗空着。空着也算一种在场：那一页还在等轮到它的那次否定。";
     ul.appendChild(e);
   }
 }
@@ -330,17 +361,17 @@ function renderVerdict(){
   if (got < WORKS.length) {
     v.innerHTML =
       '<div class="big">卷宗不齐（' + got + '/' + WORKS.length + '）</div>' +
-      '不补齐也是一种结论。总台不代你补齐，也不替你宣称这已经够了。';
+      '缺着也是一种结论。补齐这件事留给读者，够与不够由你自己落款。';
     return;
   }
   /* 三份齐：出总判，而总判正文已按第六门处理——本页不留终极 */
   v.innerHTML =
     '<div class="big">总判：【已按本协议第六门处理】</div>' +
-    '三份证明指向同一处：没有任何一处。因此总判的正文被交出去否定，' +
-    '你读到的是否定之后的残留，不是结论。<br>' +
+    '三份证明指向同一处：那一处留白。总判的正文随即被交出去否定，' +
+    '你读到的是否定之后的残留。<br>' +
     '编号 ' + esc(caseOf(state.seed)) + ' · 种子 ' + state.seed + ' · 三份回执均已归档。' +
-    '<div class="self">自指条款：本页声称「不生产结论」。这句话同样已被处理。</div>' +
-    '<div class="warn">若你正在把这句话当成结论，那它现在也已被处理。</div>';
+    '<div class="self">自指条款：本页只发号、只收档。这句话同样已被处理。</div>' +
+    '<div class="warn">若你正把这句话当成一个落脚点，那它现在也已被处理。</div>';
 }
 
 function renderAll(){ renderDocket(); renderEntries(); renderOutside(); renderLedger(); renderVerdict(); }
@@ -364,7 +395,7 @@ $("copy").onclick = function(){
     any = true;
     lines.push(w.id + "  " + w.name + "  " + (r.case || "") + "  " + r.verdict);
   });
-  if (!any) lines.push("（尚无卷宗）");
+  if (!any) lines.push("（卷宗空着）");
   var t = lines.join("\n");
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(t).then(function(){ flash("卷宗已复制"); },
@@ -400,9 +431,13 @@ document.addEventListener("keydown", function(e){
   if (w) location.href = linkOf(w);
 });
 
+/* ---- 5b. 声轨层：只在形式层活动，落在判据之外、任何一份证明的行间之外 ---- */
+if (window.OdBgm) OdBgm.mount($("bgm-hub"), { list:true });
+
 /* ---- 6. 启动 ---- */
 load();
 if (!state.seed) { state.seed = newSeed(); save(); }
+
 takeReceipt();
 renderAll();
 </script>

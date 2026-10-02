@@ -1,9 +1,11 @@
 :root {
   --bg: #000;
-  --fg: #e8e6e1;
-  --dim: #6f6d68;
-  --line: rgba(232, 230, 225, 0.14);
-  --accent: #e8e6e1;
+  --fg: #f0eee9;
+  --hi: #fffdf8;
+  --dim: #a8a39b;        /* 次级说明 · 对纯黑约 7:1 */
+  --soft: #cfcac2;
+  --accent: #f0eee9;
+  --line: rgba(232, 230, 225, 0.16);
   --panel: #0a0a0c;
 }
 
@@ -64,7 +66,7 @@ html, body {
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.35em;
-  color: var(--accent);
+  color: var(--hi);
   margin-bottom: 40px;
 }
 
@@ -117,7 +119,7 @@ html, body {
   font-family: inherit;
   caret-color: var(--accent);
 }
-.input-area input::placeholder { color: rgba(232, 230, 225, 0.2); }
+.input-area input::placeholder { color: rgba(240, 238, 233, 0.42); }
 
 .choices {
   display: flex;
@@ -155,7 +157,7 @@ html, body {
   border-color: var(--accent);
   background: rgba(232, 230, 225, 0.1);
 }
-.btn.rejected { opacity: 0.35; }
+.btn.rejected { opacity: 0.5; }
 
 .action-bar {
   margin-top: 34px;
@@ -169,11 +171,11 @@ html, body {
   margin-top: 34px;
   font-size: 11px;
   line-height: 1.8;
-  color: #5f5e5a;
+  color: var(--dim);
   max-width: 560px;
 }
 .warning[hidden] { display: none; }
-.warning b { color: #8a8781; font-weight: 500; }
+.warning b { color: var(--soft); font-weight: 500; }
 
 /* ---------- 侧栏 ---------- */
 #panel {
@@ -230,9 +232,9 @@ html, body {
   padding: 14px 24px;
   font-size: 11px;
   line-height: 1.8;
-  color: #5f5e5a;
+  color: var(--dim);
 }
-#panel-footer b { color: #8a8781; font-weight: 500; }
+#panel-footer b { color: var(--soft); font-weight: 500; }
 
 /* ---------- 证明浮层 ---------- */
 #cert-overlay {

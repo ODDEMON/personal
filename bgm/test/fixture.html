@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>声轨层 · 测试宿主</title>
+</head>
+<body>
+<!-- 只给声轨层一个挂载点：本页不参与归档协议，也不含任何判据 -->
+<div id="bgm"></div>
+<div id="bgm-list"></div>
+<script src="../bgm.js"></script>
+<script>
+  "use strict";
+  if (window.OdBgm) {
+    OdBgm.mount(document.getElementById("bgm"));
+    OdBgm.mount(document.getElementById("bgm-list"), { list: true });
+  }
+</script>
+</body>
+</html>

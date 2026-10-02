@@ -6,15 +6,18 @@
 <title>羊肠小道 · 否 定 版 / THE NARROW PATH</title>
 <style>
   :root{
-    --bg:#000; --fg:#e8e6e1; --dim:#7a7772; --line:rgba(232,230,225,.14);
-    --acc:#36F6FD; --acc2:#7633FF; --warn:#E24B4A; --panel:#0a0a0c;
+    /* 亮度按可读性校准：正文 ≥ 4.5:1，次级说明 ≥ 6:1（对 #000 底）。
+       底色保持夜色，提亮落在字上。 */
+    --bg:#000; --fg:#f0eee9; --hi:#fffdf8; --dim:#a29c94; --soft:#cfcac2;
+    --line:rgba(232,230,225,.16);
+    --acc:#5CF8FF; --acc2:#8f5cff; --warn:#F4646A; --panel:#0a0a0c;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--bg);color:var(--fg);
     font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif}
   body{padding:20px;max-width:1100px;margin:0 auto}
 
-  h1{font-size:17px;font-weight:500;letter-spacing:.2em;margin:0 0 4px}
+  h1{font-size:17px;font-weight:500;letter-spacing:.2em;margin:0 0 4px;color:var(--hi)}
   .sub{font-size:12.5px;color:var(--dim);line-height:1.7;margin:0 0 14px}
 
   #hud{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;
@@ -38,29 +41,30 @@
     padding:34px;text-align:center;z-index:5}
   .ov.on{display:flex}
   .ov h2{font-size:19px;font-weight:500;letter-spacing:.18em;margin-bottom:14px}
-  .ov p{font-size:13.5px;line-height:2;color:var(--dim);max-width:600px;margin-bottom:8px}
+  .ov p{font-size:13.5px;line-height:2;color:var(--soft);max-width:600px;margin-bottom:8px}
   .ov .thm{font-size:14px;color:var(--fg);border-left:2px solid var(--acc2);
     padding-left:14px;text-align:left;max-width:600px;margin:16px 0;line-height:1.9}
   .ov .go{margin-top:20px}
   .ov button{font-size:14px;padding:10px 26px}
-  .ov .small{font-size:11.5px;color:#5f5e5a;margin-top:16px;line-height:1.8;max-width:560px}
+  .ov .small{font-size:11.5px;color:var(--dim);margin-top:16px;line-height:1.8;max-width:560px}
+  .ov .small b{color:var(--soft);font-weight:500}
 
   #cert{text-align:left;max-width:640px;max-height:62vh;overflow-y:auto;
     background:var(--panel);border:1px solid var(--line);border-radius:10px;
     padding:22px;font-size:12.5px;line-height:1.95;white-space:pre-wrap;
     font-family:"Microsoft YaHei",monospace;color:var(--fg)}
 
-  .foot{margin-top:18px;font-size:11.5px;color:#5f5e5a;line-height:1.85}
-  .foot b{color:#8a8781;font-weight:500}
+  .foot{margin-top:18px;font-size:11.5px;color:var(--dim);line-height:1.85}
+  .foot b{color:var(--soft);font-weight:500}
 </style>
 </head>
 <body>
 
 <h1>羊肠小道 · 否 定 版</h1>
 <p class="sub">
-  鼠标即那个点。沿极窄的通道移动，<b style="color:var(--warn);font-weight:500">不要碰壁</b>，
+  鼠标即那个点。沿极窄的通道移动，<b style="color:var(--warn);font-weight:500">擦壁即计入偏差</b>，
   走到 NEXT 即过关。通道由一句命题铺成，你走过的地方会融化；
-  每碰一次壁，命题就被施加一次否定算子，并被<b>打回存档点</b>。
+  每擦一次壁，命题就被施加一次否定算子，并被<b>打回存档点</b>。
 </p>
 
 <div id="hud">
@@ -78,11 +82,13 @@
 
   <div class="ov on" id="ov-start">
     <h2>羊 肠 小 道</h2>
-    <p>移动鼠标，小心碰壁，走到 NEXT。</p>
+    <p>移动鼠标，留意两侧的壁，走到 NEXT。</p>
     <p>这条路由一句话铺成。你走过的地方会融化。<br>你碰到的每一面壁，都会把这句话改写一次。</p>
-    <div class="thm">本作不提供任何奖励。走到终点不意味着你得到了什么，<br>只意味着你还没有被否定到无法前进。</div>
+    <div class="thm">这一路的奖品是那张证明。<br>走到终点只说明一件事：这句话<b>仍留着可供落脚的字</b>。</div>
     <div class="go"><button id="btn-start">START</button></div>
-    <div class="small">无频闪、无全屏反相、无声音。Esc 暂停，L 冷静模式，R 重开本道。<br>若眼部不适，直接关闭页面。</div>
+    <div class="small">画面里只有单次缓动过渡，周期闪烁与整屏反相一概缺席。声音<b>起于静默位</b>，出声之后只
+      在形式层活动——判定之外，证明之外。<br>
+      Esc 暂停，L 冷静模式，R 重开本道。若眼部不适，随时合上页面。</div>
   </div>
 
   <div class="ov" id="ov-lv">
@@ -110,14 +116,17 @@
   <button id="btn-restart2">↻ 重开本道</button>
   <button id="btn-calm">☾ 冷静</button>
   <button id="btn-skip">⇥ 跳过本道</button>
+  <div id="bgm"></div>
 </div>
 
 <div class="foot">
   <b>已知限制（诚实披露）</b>：碰撞判定按采样点做，鼠标移动过快时可能穿过薄壁——已沿移动线段补采样，但极端速度下仍有漏检。
-  通道半径逐道收窄，第六道对鼠标精度要求较高，做不完可以直接「跳过本道」，跳过后该道命题按 100% 否定度计入证明。
-  全部数据只在当前窗口，关闭即销毁。
+  通道半径逐道收窄，第六道对鼠标精度要求较高，卡在这里可以直接「跳过本道」，跳过后该道命题按 100% 否定度计入证明。
+  全部数据只在当前窗口，关闭即销毁。<br>
+  声轨层（<code>../bgm/</code>）起于静默位，出声之后仍在判定之外：同一条路、同一句话，出声与否，得到的证明逐字相同。
 </div>
 
+<script src="../bgm/bgm.js"></script>
 <script>
 "use strict";
 
@@ -132,11 +141,11 @@ const LEVELS = [
     r:30, pts:[[.06,.50],[.25,.34],[.45,.63],[.66,.37],[.85,.56],[.95,.50]] },
   { prop:"名可名，非常名", theorem:"名可名，恒名曰自。被命名的东西并不因此存在，命名只是把它关进一扇门。",
     r:24, pts:[[.05,.20],[.20,.30],[.35,.70],[.50,.25],[.65,.75],[.80,.30],[.94,.55]] },
-  { prop:"我思故我在", theorem:"我在先于我思。而我在无法被思及——思及的那一刻，它已经是关于「我在」的陈述。",
+  { prop:"我思故我在", theorem:"我在先于我思。而我在被思及的那一刻已经退场——思及的一瞬，剩下的只是关于「我在」的陈述。",
     r:19, pts:[[.06,.15],[.18,.80],[.30,.20],[.42,.85],[.55,.18],[.68,.82],[.80,.25],[.94,.70]] },
-  { prop:"自由是最高的善", theorem:"自由与必然在形式上无法区分。能选的与不能选的，走的是同一条通道。",
+  { prop:"自由是最高的善", theorem:"自由与必然在形式上难以区分。能选的与被略过的，走的是同一条通道。",
     r:16, pts:[[.05,.12],[.90,.18],[.08,.32],[.92,.45],[.08,.58],[.92,.70],[.50,.88]] },
-  { prop:"意义是可以找到的", theorem:"寻找意义这一行为本身已经用掉了意义。找到的那件东西，不再是你出发时要找的。",
+  { prop:"意义是可以找到的", theorem:"寻找意义这一行为本身已经用掉了意义。找到的那件东西，与出发时想找的换了名字。",
     r:13, pts:[[.05,.10],[.86,.14],[.12,.28],[.88,.34],[.10,.50],[.86,.58],[.14,.74],[.90,.80],[.50,.92]] },
   { prop:"是等于否", theorem:"若此句为真，则它自身亦不占据终极位置。走到这里的你，已经把它走完了。",
     r:11, pts:[[.05,.50],[.20,.12],[.45,.20],[.62,.50],[.50,.80],[.25,.88],[.12,.70],[.30,.55],[.55,.42],[.78,.35],[.90,.55],[.80,.78],[.62,.70],[.70,.52],[.94,.50]] }
@@ -341,7 +350,7 @@ function showCert(){
   lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   lines.push("案件编号：" + (ARC.case || ("P-" + Date.now().toString(36).toUpperCase())));
   lines.push("总台种子：" + (ARC.seed || "—")
-    + "（本作无随机，种子仅用于与总台互认）");
+    + "（本作的行进完全确定，种子仅用于与总台互认）");
   lines.push("总偏差次数：" + totalHits);
   lines.push("总用时：" + (totalTime/1000).toFixed(1) + " 秒");
   lines.push("");
@@ -353,11 +362,13 @@ function showCert(){
       + (skipped[i] ? " · 已跳过" : "") + " · " + (h.time/1000).toFixed(1) + "s");
   });
   lines.push("");
-  lines.push("自指条款：本作声称「路不会为你变宽」。");
+  lines.push("自指条款：本作声称「路只按自己的宽度铺」。");
   lines.push("　　　　　而你刚刚通关——这是否构成对该声称的否定？");
   lines.push("　　　　　系统回答：不构成。");
-  lines.push("　　　　　你并未使路变宽，你只是学会了不碰壁。");
+  lines.push("　　　　　路仍是那个宽度，是手的抖动变小了。");
   lines.push("");
+  lines.push("声轨层：" + (window.OdBgm ? OdBgm.peek().title : "—")
+    + " · 全程在场，另行记账。");
   lines.push("说明：本证明仅在当前窗口内有效。关闭标签页即销毁。");
   lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   $("cert").textContent = lines.join("\n");
@@ -414,11 +425,11 @@ function draw(){
     ctx.translate(c.x, c.y);
     ctx.rotate(c.ang);
     if (melted){
-      ctx.fillStyle = "rgba(120,120,130,.18)";
+      ctx.fillStyle = "rgba(178,180,192,.30)";
       ctx.font = '500 13px "Microsoft YaHei",sans-serif';
       ctx.fillText(GLYPH_MELT[k % GLYPH_MELT.length], 0, 0);
     } else {
-      ctx.fillStyle = "rgba(232,230,225,.30)";
+      ctx.fillStyle = "rgba(240,238,233,.52)";
       ctx.font = '500 15px "Microsoft YaHei",sans-serif';
       ctx.fillText(ch, 0, 0);
     }
@@ -558,7 +569,11 @@ $("btn-restart").onclick = () => { paused = false; loadLevel(li); };
 $("btn-restart2").onclick = () => { loadLevel(li); };
 $("btn-pause").onclick = () => { paused = true; show("ov-pause"); };
 $("btn-skip").onclick = () => { if (!isBlocked() || true) skipLevel(); };
-$("btn-calm").onclick = () => { calm = !calm; $("btn-calm").classList.toggle("on", calm); };
+$("btn-calm").onclick = () => {
+  calm = !calm;
+  $("btn-calm").classList.toggle("on", calm);
+  if (window.OdBgm) OdBgm.setSoft(calm);      // 冷静模式只压音量，不关声——声不在判据内
+};
 $("btn-copy").onclick = () => {
   const t = $("cert").textContent;
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).catch(()=>{});
@@ -617,6 +632,9 @@ window.__NP__ = {
   get li(){ return li; }, get cpIdx(){ return cpIdx; },
   query, loadLevel, buildPath
 };
+
+/* 声轨层：只在形式层生效，不进判据。缺文件时曲目区空白即如实说明 */
+if (window.OdBgm) OdBgm.mount($("bgm"));
 
 buildPath(LEVELS[0]);
 $("h-prop").textContent = LEVELS[0].prop;

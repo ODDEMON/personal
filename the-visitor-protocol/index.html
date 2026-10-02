@@ -18,10 +18,10 @@
     <section id="intro" class="scene">
       <h1 class="scene-title">来访者协议</h1>
       <p class="scene-prompt">
-        本协议是一个形式化的否定演算系统。<br>
-        它要做的不是反对哪一种价值，<br>
-        而是证明：<b style="font-weight:500">在语言体系内，没有任何价值占据终极位置</b>。<br>
-        包括这句话本身。
+        本协议是一台形式化的否定演算机器。<br>
+        它的对象是位置，而不是某一种价值 ——<br>
+        它要证的是：<b style="font-weight:500">在语言体系内，终极这一把椅子始终空着</b>。<br>
+        连同这句在内。
       </p>
       <div class="input-area">
         <input type="text" id="seed-text" placeholder="在此输入你的献词（一句话）" autocomplete="off" spellcheck="false">
@@ -30,8 +30,9 @@
         <button class="btn primary" id="begin-btn">进入协议</button>
       </div>
       <p class="warning">
-        <b>提示</b>：本页面不保存、不发送任何数据；所有运算在浏览器内完成。
-        不含频闪。按 <b>Esc</b> 可在任意步骤重置。
+        <b>提示</b>：这一页把数据留在你的浏览器里，运算在本地完成，收件名单是空的。
+        画面的变化一次一步。声音<b>起于静默位</b>，出声之后只在形式层活动——运算之外，证明之外。
+        按 <b>Esc</b> 可在任意步骤回到起点。
       </p>
     </section>
 
@@ -75,9 +76,10 @@
     <div id="panel-footer">
       <b>诚实披露</b>：
       运算基于输入串的形式属性（长度、熵、字符集、全称词计数），而非语义理解。
-      它不判断哪一种价值更好，只证伪「终极」这一位置的可占据性。
-      协议自身的断言在最后一门被施加于自身——否则它只是换了一个新终极。
+      它绕开「哪一种价值更好」这类问题，只对着「终极」这一位置的可占据性下手。
+      协议自身的断言在最后一门被施加于自身——否则它只是换了一把新椅子。
     </div>
+    <div id="bgm"></div>
   </aside>
 </div>
 
@@ -90,6 +92,7 @@
   </div>
 </div>
 
+<script src="../bgm/bgm.js"></script>
 <script src="protocol.js"></script>
 <script>
 "use strict";
@@ -118,8 +121,11 @@ function init() {
   $('archive-cert').addEventListener('click', archiveCert);
   $('close-cert').addEventListener('click', () => $('cert-overlay').classList.remove('on'));
 
+  // 声轨层：只在形式层活动，落在运算之外。缺文件时曲目区留白，由它自己说明
+  if (window.OdBgm) OdBgm.mount($('bgm'));
+
   function archiveCert() {
-    if (!log.length) { ARC.back('V', '未走完（未进入协议）'); return; }
+    if (!log.length) { ARC.back('V', '停在起步之前'); return; }
     const f = finalState(input, log);
     ARC.back('V', '全称性 ' + f.metrics.universality
       + ' · 完整性 ' + (f.metrics.integrity * 100).toFixed(0) + '%'
@@ -250,7 +256,7 @@ function showEnd() {
   show('end');
   const f = finalState(input, log);
   $('end-text').textContent = f.text;
-  $('end-text').style.borderColor = '#555';
+  $('end-text').style.borderColor = '#7a7a7a';
   $('end-text').style.color = 'var(--fg)';
   updateMetrics();
 }

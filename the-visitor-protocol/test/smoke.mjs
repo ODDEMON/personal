@@ -58,6 +58,10 @@ async function walkthrough(choicePicker) {
   ok("协议核心已挂载", !!window.VisitorProtocol);
   ok("六道门已定义", window.VisitorProtocol.GATES.length === 6);
 
+  // 声轨层：挂在仪表栏，不进运算
+  ok("声轨层已挂载", !!doc.querySelector("#bgm .od-bgm"));
+  ok("默认是关的（不自动出声）", !!window.OdBgm && window.OdBgm.peek().on === false);
+
   $("seed-text").value = "感动是有意义的";
   $("begin-btn").click();
   await sleep(40);
@@ -103,6 +107,7 @@ async function walkthrough(choicePicker) {
   ok("证明含献词原句", cert.includes("感动是有意义的"));
   ok("证明含全称性行", cert.includes("全称性："));
   ok("证明含自指条款", cert.includes("自指条款"));
+  ok("证明含声轨行且注明另行记账", cert.includes("声轨层：") && cert.includes("另行记账"));
   ok("全称性指标已渲染", /^\d+$/.test($("m-universal").textContent), $("m-universal").textContent);
 
   ok("无运行时错误", errors.length === 0, errors.join(" | "));

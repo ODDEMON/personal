@@ -8,9 +8,11 @@
   :root{
     --hue: 355;
     --bg: #000;
-    --fg: #e8e6e1;
-    --dim: #8a8781;
-    --line: rgba(232,230,225,.14);
+    --fg: #f0eee9;
+    --hi: #fffdf8;
+    --dim: #a8a39b;      /* 次级说明 · 对纯黑约 7:1 */
+    --soft: #cfcac2;
+    --line: rgba(232,230,225,.16);
     --acc: hsl(var(--hue) 90% 62%);
     --acc2: hsl(calc(var(--hue) + 185) 85% 60%);
     --panel: #0a0a0c;
@@ -20,7 +22,7 @@
     font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif}
   body{padding:26px 20px 60px;max-width:1180px;margin:0 auto}
 
-  h1{font-size:19px;font-weight:500;letter-spacing:.16em;margin:0 0 6px}
+  h1{font-size:19px;font-weight:500;letter-spacing:.16em;margin:0 0 6px;color:var(--hi)}
   .sub{font-size:13px;color:var(--dim);line-height:1.75;margin:0 0 18px}
   .sub b{color:var(--acc);font-weight:500}
 
@@ -74,27 +76,27 @@
   #verdict b{color:var(--acc);font-weight:500}
   #verdict .self{margin-top:10px;color:var(--acc2)}
 
-  .foot{margin-top:34px;font-size:12px;color:#6f6d68;line-height:1.9;
+  .foot{margin-top:34px;font-size:12px;color:var(--dim);line-height:1.9;
     border-top:1px solid var(--line);padding-top:14px}
   .foot code{color:var(--acc2);font-size:11.5px}
   .foot li{margin:0 0 3px}
-  .foot b{color:#8a8781;font-weight:500}
+  .foot b{color:var(--soft);font-weight:500}
 </style>
 </head>
 <body>
 
 <h1>是 等 于 否 · 验算器</h1>
 <p class="sub">
-  这不是生成器，是一台<b>验算机</b>。输入一个命题，它对该命题反复施加否定算子，
-  直到命题不再变化为止 —— 那一刻即不动点，即「是等于否」的一次验算完毕。<br>
-  每一次变换都署名。<b>随机只决定用哪个算子，不决定算子做什么</b>：全过程可审计、可复现。
+  这是一台<b>验算机</b>，生成器在隔壁。输入一个命题，它对该命题反复施加否定算子，
+  直到命题停在原地为止 —— 那一刻即不动点，即「是等于否」的一次验算完毕。<br>
+  每一次变换都署名。<b>随机只决定用哪个算子，算子做什么由算子自己说了算</b>：全过程可审计、可复现。
 </p>
 
 <div class="warn">
   <b>⚠ 光敏与可读性提示　·</b>
-  画面含高饱和渐变、错位与噪点，但<b>本页不含任何周期闪烁或全屏反相</b>——
-  全部变化为每步一次的单次过渡。按 <code>L</code> 或点「☾ 冷静」可关闭模糊、错位与乱码替换，只留文字与算子署名。
-  若眼部不适，请直接关闭标签页。
+  画面含高饱和渐变、错位与噪点，<b>而它的变化一次一步，全部是单次缓动</b>——周期闪烁与整屏反相缺席。<br>
+  按 <code>L</code> 或点「☾ 冷静」可把模糊、错位与乱码替换收进抽屉，只留文字与算子署名。
+  声音<b>起于静默位</b>，出声之后只在形式层活动：<b>判据之外，判词之外</b>。若眼部不适，随时合上标签页即可。
 </div>
 
 <div class="panel">
@@ -108,6 +110,7 @@
       <button id="calm">☾ 冷静</button>
       <button id="png">⤓ 导出 PNG</button>
       <button id="btn-archive">⤤ 归档至总台</button>
+      <div id="bgm"></div>
     </div>
     <div id="stage"></div>
     <div id="verdict"></div>
@@ -141,16 +144,21 @@
 <div class="foot">
   <b>已知限制（诚实披露）</b>
   <ul style="margin:8px 0 0;padding-left:18px">
-    <li>算子是<b>手写规则表</b>，不是推理。它不会理解你的句子，只会改写它的形状 —— 这一点与「意义被取消」这件事本身是一致的，未修。</li>
-    <li>不动点判定为<b>串相等</b>或<b>可读性低于 12%</b>。前者是真正的收敛，后者是耗尽，二者在画面上不作区分，但在判词里写清楚。</li>
-    <li>中文与英文规则分表；混排句子中文规则优先，英文部分可能只被稀释而不被否定。</li>
-    <li>随机已<b>种子化</b>（mulberry32）。同一种子 + 同一输入 = 同一条路径，可完整重放。此前版本未做种子化，无法复现，本次已修。</li>
-    <li>导出分辨率固定 1080×1440，等于当前画面，<b>没有「预览降质、成品全清」的分离机制</b>。</li>
-    <li>超长文本在导出时按宽度自动折行，但<b>超过 12 步的链路在单页内可能放不下</b>，此时导出的下半部分会被裁掉。</li>
+    <li>算子是<b>手写规则表</b>，它读的是形状：你在句子里放的意思留在原处，它只改写句子的形状 ——
+      这与「意义被取消」本身同构，保持原样。</li>
+    <li>不动点判定为<b>串相等</b>或<b>可读性低于 12%</b>。前者是真正的收敛，后者是耗尽，二者在画面上长得一样，
+      判词里会写明是哪一个。</li>
+    <li>中文与英文规则分表；混排句子中文规则优先，英文部分可能只被稀释，就此留在原地。</li>
+    <li>随机已<b>种子化</b>（mulberry32）。同一种子 + 同一输入 = 同一条路径，可完整重放。此前版本的路径随风摆动，本次已修。</li>
+    <li>导出分辨率固定 1080×1440，等于当前画面，<b>「预览降质、成品全清」那套分离机制在这台上缺席</b>。</li>
+    <li>超长文本在导出时按宽度自动折行，但<b>超过 12 步的链路会把单页撑到溢出</b>，此时导出的下半部分会被裁掉。</li>
+    <li>声轨层起于静默位，出声之后仍在验算之外：同种子 + 同输入，出声与否，链路逐字相同。
+      它的开关是一个四值判断器，与此刻正在播放的内容分处两事。</li>
   </ul>
   <div style="margin-top:12px">证明初步完毕，我不会对此进行完善。</div>
 </div>
 
+<script src="../bgm/bgm.js"></script>
 <script>
 "use strict";
 
@@ -305,7 +313,7 @@ function applyOnce() {
     const res = OPS[idx].f(cur, makeR(seed * 31 + n * 9176 + idx));
     if (res && res.text !== cur) { chain.push({ name: OPS[idx].name, text: res.text }); return; }
   }
-  chain.push({ name: "无可施加 · 收敛", text: cur });
+  chain.push({ name: "算子在此止步 · 收敛", text: cur });
 }
 
 function render() {
@@ -320,13 +328,13 @@ function render() {
     el.className = "step" + (i === 0 ? " head" : "") + (i === n ? " last" : "");
     let css = "font-size:" + (30 - d * 10).toFixed(1) + "px;";
     css += "letter-spacing:" + (d * 15).toFixed(2) + "px;";
-    css += "color:hsl(" + hue.toFixed(0) + " " + (100 - d * 35).toFixed(0) + "% " + (74 - d * 22).toFixed(0) + "%);";
+    css += "color:hsl(" + hue.toFixed(0) + " " + (100 - d * 35).toFixed(0) + "% " + (80 - d * 18).toFixed(0) + "%);";
     const blur = eff("blur", d * 1.7), skew = eff("skew", d * 22), glow = eff("glow", d * 3);
     if (blur > 0) css += "filter:blur(" + blur.toFixed(2) + "px) saturate(" + (1 + d) + ");";
     if (skew > 0) css += "transform:skewX(" + (((i * 37 + seed) % 100) / 100 - 0.5) * skew + "deg);";
     if (glow > 0) css += "text-shadow:" + glow.toFixed(1) + "px 0 hsl(" + ((hue + 185) % 360) + " 90% 60%),"
                       + (-glow).toFixed(1) + "px 0 hsl(" + ((hue + 65) % 360) + " 90% 60%);";
-    css += "opacity:" + (1 - d * 0.32).toFixed(2) + ";";
+    css += "opacity:" + (1 - d * 0.18).toFixed(2) + ";";
     const tag = document.createElement("span");
     tag.className = "tag";
     tag.textContent = "第 " + i + " 步　" + s.name;
@@ -352,21 +360,24 @@ function render() {
     v.style.display = "block";
     let html;
     if (fixed) {
-      html = "<b>不动点已抵达。</b>第 " + n + " 步与第 " + (n - 1) + " 步的串完全相等 —— 否定算子作用在它自身上不再产生差异。<br>是等于否，验算完毕。";
+      html = "<b>不动点已抵达。</b>第 " + n + " 步与第 " + (n - 1) + " 步的串完全相等 —— 否定算子落在它自身上，翻出来的还是它自己。<br>是等于否，验算完毕。";
     } else {
-      html = "<b>验算中断。</b>" + (n >= MAX ? "已达 " + MAX + " 步上限" : "可读性低于 12%，句子已耗尽")
-           + "。<br>这不是不动点，是材料用完了。两者在画面上不作区分，但在判词里说清楚。";
+      html = "<b>验算停在这里。</b>" + (n >= MAX ? "已达 " + MAX + " 步上限" : "可读性低于 12%，句子已耗尽")
+           + "。<br>这里抵达的是耗尽，而不是不动点。两者在画面上长得一样，判词里写明是哪一个。";
     }
     if (isSelf) {
       html += '<div class="self">自指条款：本机公理「' + AXIOM + '」已被本机验算。'
             + (chain[n].text === AXIOM
-               ? "它未被改变 —— 则本机不成立。"
+               ? "它原字原样地走了回来 —— 本机这一次手里空着。"
                : "它已被改写为「" + chain[n].text.slice(0, 40) + "」—— 则「是等于否」成立。")
             + "</div>";
     }
-    html += '<div style="margin-top:8px;color:#6f6d68">案件编号 ' + (ARC.case || "—")
+    html += '<div style="margin-top:8px;color:var(--dim)">案件编号 ' + (ARC.case || "—")
           + ' · 种子 ' + seed + '（同种子 + 同输入 = 同结果，可自行复算）</div>';
-    html += '<br><span style="color:#6f6d68">证明初步完毕，我不会对此进行完善。</span>';
+    html += '<div style="margin-top:6px;color:var(--dim)">声轨层：'
+          + (window.OdBgm ? OdBgm.peek().title : "—")
+          + ' · 全程在场，另行记账。</div>';
+    html += '<br><span style="color:var(--dim)">证明初步完毕，我不会对此进行完善。</span>';
     v.innerHTML = html;
   }
 }
@@ -423,7 +434,7 @@ function exportPNG() {
     if (y > H - 80) return;
     const h = (hueBase + d * 140) % 360;
     x.font = '500 20px "Microsoft YaHei",sans-serif';
-    x.fillStyle = "rgba(255,255,255,.42)";
+    x.fillStyle = "rgba(255,255,255,.6)";
     x.fillText("第 " + i + " 步　" + s.name, 70, y);
     y += 30;
     x.font = "500 " + Math.round(58 - d * 16) + 'px "Microsoft YaHei",sans-serif';
@@ -434,7 +445,7 @@ function exportPNG() {
         x.fillStyle = "hsl(" + ((h + 65) % 360) + " 90% 60%)";
         x.fillText(line, 70 + d * 5, y + d * 2);
       }
-      x.fillStyle = "hsl(" + h + " " + (100 - d * 35) + "% " + (74 - d * 22) + "%)";
+      x.fillStyle = "hsl(" + h + " " + (100 - d * 35) + "% " + (80 - d * 18) + "%)";
       x.fillText(line, 70, y);
       y += Math.round(66 - d * 14);
     }
@@ -457,7 +468,7 @@ function exportPNG() {
   x.fillStyle = vg; x.fillRect(0, 0, W, H);
 
   x.font = '500 18px "Microsoft YaHei",sans-serif';
-  x.fillStyle = "rgba(255,255,255,.5)";
+  x.fillStyle = "rgba(255,255,255,.68)";
   x.fillText("种子 " + seed + " · 步数 " + n + " · 是等于否", 70, H - 56);
 
   const a = document.createElement("a");
@@ -489,6 +500,7 @@ $("calm").onclick    = () => {
   calm = !calm;
   $("calm").classList.toggle("on", calm);
   $("m4").textContent = calm ? "开" : "关";
+  if (window.OdBgm) OdBgm.setSoft(calm);      // 只压音量上限，不动判据
   render();
 };
 $("reseed").onclick  = () => {
@@ -533,8 +545,11 @@ if (ARC.seed) $("seed").value = ARC.seed;
 $("btn-archive").onclick = function(){
   var n = chain.length - 1;
   var neg = ($("m2b").textContent || "0%").trim();
-  ARC.back("P", n > 0 ? (n + " 步 · 否定度 " + neg) : "未验算");
+  ARC.back("P", n > 0 ? (n + " 步 · 否定度 " + neg) : "停在起点");
 };
+
+/* 声轨层：只在形式层生效，不进判据。缺文件时曲目区空白即如实说明 */
+if (window.OdBgm) OdBgm.mount($("bgm"));
 
 seed = readSeed();
 settle();
